@@ -1,1 +1,10 @@
 # free5GLab
+
+free5GLab includes series of hands-on lab of 5G Core (free5GC), this document has being maintained by students of WireLab.
+This document helps the lab newbies (or anyone who interested in 5G Core) to understand how to develop/trace/use free5GC.
+* Lab 0: Network Programming with Go
+* Lab 1: Concurrent Programming in Go
+* Lab 2: Networking Basics in Linux kernel
+* Lab 3: Deploying free5GC
+* Lab 4: Service-Based Architecture (HTTP protocol)
+* Lab 5: 5G protocol stack observation (tcpdump)
