@@ -25,7 +25,7 @@ Thus we recommand you use Go 1.21+ to complete all of labs.
 
 ## Exercise: Implement a TCP server
 
-- Please implement pre-defiend functions `TcpListener()` and `TcpHandler()`.
+- Please implement pre-defined functions `TcpListener()` and `TcpHandler()`.
 - Expected behaviours:
     - Support to handle multiple connection simultaneously.
     - After connection established, TCP server always respond what it received.
