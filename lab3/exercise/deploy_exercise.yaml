@@ -11,9 +11,7 @@ services:
     cap_add:
       - NET_ADMIN
     networks:
-      privnet:
-        aliases:
-          - upf.free5gc.org
+
 
   db:
     container_name: mongodb
@@ -199,27 +197,6 @@ services:
       - free5gc-nrf
       - free5gc-webui
 
-  free5gc-n3iwf:
-    container_name: n3iwf
-    image: free5gc/n3iwf:v3.4.2
-    command: sh -c "./n3iwf-ipsec.sh && ./n3iwf -c ./config/n3iwfcfg.yaml"
-    volumes:
-      - ./config/n3iwfcfg.yaml:/free5gc/config/n3iwfcfg.yaml
-      - ./config/n3iwf-ipsec.sh:/free5gc/n3iwf-ipsec.sh
-    environment:
-      GIN_MODE: release
-    cap_add:
-      - NET_ADMIN
-    networks:
-      privnet:
-        ipv4_address: 10.100.200.15
-        aliases:
-          - n3iwf.free5gc.org
-    depends_on:
-      - free5gc-amf
-      - free5gc-smf
-      - free5gc-upf
-
   free5gc-webui:
     container_name: webui
     image: free5gc/webui:v3.4.2
@@ -254,29 +231,10 @@ services:
     devices:
       - "/dev/net/tun"
     networks:
-      privnet:
-        aliases:
-          - gnb.free5gc.org
+      
     depends_on:
       - free5gc-amf
       - free5gc-upf
-
-  n3iwue:
-    container_name: n3iwue
-    image: free5gc/n3iwue:latest
-    command: sleep infinity
-    volumes:
-      - ./config/n3uecfg.yaml:/n3iwue/config/n3ue.yaml
-    cap_add:
-      - NET_ADMIN
-    devices:
-      - "/dev/net/tun"
-    networks:
-      privnet:
-        aliases:
-          - n3ue.free5gc.org
-    depends_on:
-      - free5gc-n3iwf
 
 networks:
   privnet:
