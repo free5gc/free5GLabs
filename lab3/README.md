@@ -33,6 +33,12 @@ In free5GC, each NF (Network Function) has its own listening address used to rec
 
 These three interfaces are the most important interfaces in the 5G system. Therefore, this lab will teach you how to configure the addresses for these interfaces.
 
+### N6 NAT
+UPF will performs NAT on packets output through the N6 interface. Rules are set up in `upf-iptables.sh`.
+
+### N9
+Interface for I-UPF to PSA-UPF.
+
 ## Exercise: Configure N2 & N3 & N4 interface in Docker Compose
 In this exercise, we will use docker bridge network to set up these three interfaces.
 
