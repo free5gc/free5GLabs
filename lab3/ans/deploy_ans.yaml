@@ -11,12 +11,10 @@ services:
     cap_add:
       - NET_ADMIN
     networks:
-      privnet:
-        aliases:
-          - upf.free5gc.org
       n3net:
         aliases:
           - upf.n3.org
+        ipv4_address: 10.100.3.100
       n4net:
         aliases:
           - upf.n4.org
@@ -141,12 +139,10 @@ services:
     environment:
       GIN_MODE: release
     networks:
+      
       privnet:
         aliases:
           - smf.free5gc.org
-      n3net:
-        aliases:
-          - smf.n3.org
       n4net:
         aliases:
           - smf.n4.org
@@ -248,9 +244,6 @@ services:
     devices:
       - "/dev/net/tun"
     networks:
-      privnet:
-        aliases:
-          - gnb.free5gc.org
       n2net:
         aliases:
           - gnb.n2.org
