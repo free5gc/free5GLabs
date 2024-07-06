@@ -18,6 +18,9 @@ services:
       n4net:
         aliases:
           - upf.n4.org
+      n6net:
+        ipv4_address: 10.100.6.100
+
 
   db:
     container_name: mongodb
@@ -262,6 +265,7 @@ networks:
         - subnet: 10.100.200.0/24
     driver_opts:
       com.docker.network.bridge.name: br-free5gc
+      
   n2net:
     ipam:
       driver: default
@@ -285,6 +289,16 @@ networks:
         - subnet: 10.100.4.0/24
     driver_opts:
       com.docker.network.bridge.name: br-n4
+
+  n6net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.100.6.0/24
+    driver_opts:
+      com.docker.network.bridge.name: br-n6
+      com.docker.network.container_iface_prefix: dn
+
 
 volumes:
   dbdata:

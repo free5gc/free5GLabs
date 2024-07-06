@@ -38,12 +38,35 @@ UPF will performs NAT on packets output through the N6 interface. Rules are set 
 ### N9
 Interface for two UPFs communication.
 
+### Docker bridge network
+Docker Bridge Network is one of the most commonly used network modes in Docker. It allows Docker containers to communicate with each other through a virtual bridge. This mode is mainly used for communication between containers and between containers and the host machine.
+
+After installing Docker Engine, there will be a default bridge network named `docker0`, with a subnet of `172.17.0.0/16`. You can use `brctl show` to see the bridge information.
+
+```sh
+~$ brctl show
+bridge name     bridge id               STP enabled     interfaces
+docker0         8000.02426fa2174a       no
+```
+
+If we run a container, a pair of veth interfaces will be created, with one placed on `docker0` and the other inside the container. This allows the container to communicate with other containers on the bridge or with the host.
+
+```sh
+~$ docker run -dit --name alpine1 alpine ash
+7ef26c2ccd704b35ec168baa498239a773e7fd8ed0cd8db9ebb24638c14e46b2
+
+// docker0 bridge has one veth to container
+~$ brctl show
+bridge name     bridge id               STP enabled     interfaces
+docker0         8000.02426fa2174a       no              veth43f5e85
+```
+
+Since the Docker bridge is implemented based on the Linux bridge, we can use `brctl`, a Linux utility or docker cli for managing bridges. Or use docker cli to manage it. [brctl document](https://man7.org/linux/man-pages/man8/brctl.8.html)
+
 ## Exercise: Configure N2 & N3 & N4 interface in Docker Compose
 In this exercise, we will use docker bridge network to set up these three interfaces.
 
-About docker network, you can refer [Docker Networking – Basics, Network Types & Examples](https://spacelift.io/blog/docker-networking) to learn more information.
-
-In bottom of deploy_exercise.yaml, you can find network setting.
+In bottom of exercise/deploy_exercise.yaml, you can find network setting.
 ```yaml
 networks:
   privnet:
@@ -56,7 +79,6 @@ networks:
 ```
 For example, privnet is the bridge network for NFs internal communicaion. ex: Nnrf, Nudm...
 
-
 Each NF, except for the `UPF`, is assigned an IP address within a `privnet` for internal communication. And assign it an alias for ease of use.
 ```yaml
 networks:
@@ -64,7 +86,43 @@ networks:
     aliases:
         - udr.free5gc.org
 ```
-Our goal is to create three bridge networks named `n1net`, `n2net` and `n3net`. These will be respectively assigned to `AMF`, `SMF`, `UPF` and `UERANSIM`.
+We create three bridge networks named `n1net`, `n2net`, `n3net` and `n6net`. Our goal is respectively assigned network to `AMF`, `SMF`, `UPF` and `UERANSIM`.
+
+```yaml
+n3net:
+  ipam:
+    driver: default
+    config:
+      - subnet: 10.100.3.0/24
+  driver_opts:
+    com.docker.network.bridge.name: br-n3
+
+n4net:
+  ipam:
+    driver: default
+    config:
+      - subnet: 10.100.4.0/24
+  driver_opts:
+    com.docker.network.bridge.name: br-n4
+
+n6net:
+  ipam:
+    driver: default
+    config:
+      - subnet: 10.100.6.0/24
+  driver_opts:
+    com.docker.network.bridge.name: br-n6
+    com.docker.network.container_iface_prefix: dn
+```
+
+Here is the sample of assign `n3net` to upf :
+```yaml
+networks:
+  n3net:
+    aliases:
+      - upf.n3.org
+    ipv4_address: 10.100.3.100
+```
 
 After assigning the networks, it is necessary to update the IP addresses in the corresponding NF configurations.
 
@@ -81,8 +139,12 @@ Please replace `update here` with the configured N2, N3, and N4 addresses.
 Tips: 
 In `smfcfg.yaml`, you will configure the `UPF` N3 interface address because it is required for setting up sessions during SM context creation. If you only use an alias when configuring this address, it may cause DNS resolution issues. Therefore, in `deploy_exercise.yaml`, you should set a static IP address for the `UPF` N3 network and use it here.
 
-After configuring, you can use these commands to start or stop docker compose.
+After configuring, clone [free5gc-compose](https://github.com/free5gc/free5gc-compose). Then move `free5GLab/lab3/exercise/deploy_exercise.yaml` to `free5gc-compose/` and copy the contents of the files from the `free5GLab/lab3/exercise/config` directory to `free5gc-compose/config`.
+
+You can use these commands to start or stop docker compose.
 ```sh
+ce ~/free5gc-compose
+
 // start
 docker compose -f deploy_exercise.yaml up
 
@@ -139,6 +201,8 @@ And use `ping` to test it can reach date network
 ```sh
 ping -I uesimtun0 8.8.8.8
 ```
+
+If you encounter any issues during the exercise, you can refer to the `free5GLab/lab3/ans` folder.
 
 ## Reference
 * [3GPP TS 23.501](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3144)
