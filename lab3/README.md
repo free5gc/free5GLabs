@@ -66,7 +66,7 @@ Since the Docker bridge is implemented based on the Linux bridge, we can use `br
 ## Exercise: Configure N2 & N3 & N4 interface in Docker Compose
 In this exercise, we will use docker bridge network to set up these three interfaces.
 
-In bottom of deploy_exercise.yaml, you can find network setting.
+In bottom of exercise/deploy_exercise.yaml, you can find network setting.
 ```yaml
 networks:
   privnet:
@@ -139,8 +139,12 @@ Please replace `update here` with the configured N2, N3, and N4 addresses.
 Tips: 
 In `smfcfg.yaml`, you will configure the `UPF` N3 interface address because it is required for setting up sessions during SM context creation. If you only use an alias when configuring this address, it may cause DNS resolution issues. Therefore, in `deploy_exercise.yaml`, you should set a static IP address for the `UPF` N3 network and use it here.
 
-After configuring, you can use these commands to start or stop docker compose.
+After configuring, clone [free5gc-compose](https://github.com/free5gc/free5gc-compose). Then move `free5GLab/lab3/exercise/deploy_exercise.yaml` to `free5gc-compose/` and copy the contents of the files from the `free5GLab/lab3/exercise/config` directory to `free5gc-compose/config`.
+
+You can use these commands to start or stop docker compose.
 ```sh
+ce ~/free5gc-compose
+
 // start
 docker compose -f deploy_exercise.yaml up
 
@@ -197,6 +201,8 @@ And use `ping` to test it can reach date network
 ```sh
 ping -I uesimtun0 8.8.8.8
 ```
+
+If you encounter any issues during the exercise, you can refer to the `free5GLab/lab3/ans` folder.
 
 ## Reference
 * [3GPP TS 23.501](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3144)
