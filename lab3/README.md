@@ -12,18 +12,15 @@ In Lab3, you will learn how to deploy free5GC with docker and set up interface n
 
 ## Preparation
 
-### Install GTP5G
+* Install GTP5G: refer [GTP5G github](https://github.com/free5gc/gtp5g) to install
 
-refer [GTP5G github](https://github.com/free5gc/gtp5g) to install
-
-### Install Docker Engine and Docker Compose 
-refer [Docker Website](https://docs.docker.com/engine/install/ubuntu/) to instll 
+* Install Docker Engine and Docker Compose: refer [Docker Website](https://docs.docker.com/engine/install/ubuntu/) to install 
 
 ## Listening Address
 
 Listening Address the IP address and port used by a server to listen for connections from clients. These addresses and ports are used to accept requests from clients. ex: 192.168.100.101:12345
 
-In free5GC, each NF (Network Function) has its own listening address used to receive and process requests sent by other NFs.
+In free5GC, each NF (Network Function) has its own listening addresses used to receive and process requests sent by other NFs.
 
 ## N2 & N3 & N4 interface
 ![architecture](./images/architecture.png)
@@ -34,10 +31,12 @@ In free5GC, each NF (Network Function) has its own listening address used to rec
 These three interfaces are the most important interfaces in the 5G system. Therefore, this lab will teach you how to configure the addresses for these interfaces.
 
 ### N6 NAT
+Interface to data network.
+
 UPF will performs NAT on packets output through the N6 interface. Rules are set up in `upf-iptables.sh`.
 
 ### N9
-Interface for I-UPF to PSA-UPF.
+Interface for two UPFs communication.
 
 ## Exercise: Configure N2 & N3 & N4 interface in Docker Compose
 In this exercise, we will use docker bridge network to set up these three interfaces.
@@ -55,7 +54,7 @@ networks:
     driver_opts:
       com.docker.network.bridge.name: br-free5gc
 ```
-For example, privnet is the bridge network for NFs internal communicaion. ex: nnrf, nudm...
+For example, privnet is the bridge network for NFs internal communicaion. ex: Nnrf, Nudm...
 
 
 Each NF, except for the `UPF`, is assigned an IP address within a `privnet` for internal communication. And assign it an alias for ease of use.
@@ -82,7 +81,7 @@ Please replace `update here` with the configured N2, N3, and N4 addresses.
 Tips: 
 In `smfcfg.yaml`, you will configure the `UPF` N3 interface address because it is required for setting up sessions during SM context creation. If you only use an alias when configuring this address, it may cause DNS resolution issues. Therefore, in `deploy_exercise.yaml`, you should set a static IP address for the `UPF` N3 network and use it here.
 
-After configuring, you can use these commands to start and stop.
+After configuring, you can use these commands to start or stop docker compose.
 ```sh
 // start
 docker compose -f deploy_exercise.yaml up
