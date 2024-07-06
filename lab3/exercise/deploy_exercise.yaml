@@ -8,6 +8,8 @@ services:
     volumes:
       - ./config/upfcfg.yaml:/free5gc/config/upfcfg.yaml
       - ./config/upf-iptables.sh:/free5gc/upf-iptables.sh
+    networks:
+    
     cap_add:
       - NET_ADMIN
     networks:
@@ -244,6 +246,39 @@ networks:
         - subnet: 10.100.200.0/24
     driver_opts:
       com.docker.network.bridge.name: br-free5gc
+
+  n2net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.100.2.0/24
+    driver_opts:
+      com.docker.network.bridge.name: br-n2
+
+  n3net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.100.3.0/24
+    driver_opts:
+      com.docker.network.bridge.name: br-n3
+
+  n4net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.100.4.0/24
+    driver_opts:
+      com.docker.network.bridge.name: br-n4
+
+  n6net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.100.6.0/24
+    driver_opts:
+      com.docker.network.bridge.name: br-n6
+      com.docker.network.container_iface_prefix: dn
 
 volumes:
   dbdata:
