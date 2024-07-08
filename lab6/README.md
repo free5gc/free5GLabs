@@ -26,8 +26,10 @@ This lab does not contain any information about Git!
 > >Git is a distributed version control system used to track changes in source code during software development. It allows multiple developers to work on a project simultaneously without interfering with each other’s changes.
 
 - [Git vs. GitHub: What's the difference?](https://www.youtube.com/watch?v=wpISo9TNjfU) -- from IBM
+- [Git 的故事：這一次沒這麼好玩](https://blog.brachiosoft.com/posts/git/) -- from brachiosoft
 
 There are plenty of resources explaining what Git, GitHub, and version control are, so we skip the explanation here. 
+
 
 #### Key Points
 
