@@ -8,4 +8,4 @@ This document helps the lab newbies (or anyone who interested in 5G Core) to und
 * Lab 3: Deploying free5GC
 * Lab 4: Service-Based Architecture (HTTP protocol)
 * Lab 5: 5G protocol stack observation (tcpdump)
-* Lab 6: Git & GitHub
+* Lab 6: [Git & GitHub](./lab6/README.md)

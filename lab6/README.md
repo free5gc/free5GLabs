@@ -1,4 +1,4 @@
-# Git & GitHub
+# Lab 6: Git & GitHub
 
 ## Introduction
 
