@@ -33,7 +33,7 @@ These three interfaces are the most important interfaces in the 5G system. There
 ### N6 NAT
 Interface to data network.
 
-UPF will performs NAT on packets output through the N6 interface. Rules are set up in `upf-iptables.sh`.
+n6gw will performs NAT on packets output through the N6 interface. Rules are set up in `n6gw-iptables.sh`.
 
 ### N9
 Interface for two UPFs communication.
