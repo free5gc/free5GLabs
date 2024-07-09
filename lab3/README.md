@@ -33,12 +33,12 @@ These three interfaces are the most important interfaces in the 5G system. There
 ### N6 NAT
 Interface to data network.
 
-UPF will performs NAT on packets output through the N6 interface. Rules are set up in `upf-iptables.sh`.
+n6gw will performs NAT on packets output through the N6 interface. Rules are set up in `n6gw-iptables.sh`.
 
 ### N9
 Interface for two UPFs communication.
 
-### Docker bridge network
+## Docker bridge network
 Docker Bridge Network is one of the most commonly used network modes in Docker. It allows Docker containers to communicate with each other through a virtual bridge. This mode is mainly used for communication between containers and between containers and the host machine.
 
 After installing Docker Engine, there will be a default bridge network named `docker0`, with a subnet of `172.17.0.0/16`. You can use `brctl show` to see the bridge information.
@@ -63,6 +63,36 @@ docker0         8000.02426fa2174a       no              veth43f5e85
 
 Since the Docker bridge is implemented based on the Linux bridge, we can use `brctl`, a Linux utility or docker cli for managing bridges. Or use docker cli to manage it. [brctl document](https://man7.org/linux/man-pages/man8/brctl.8.html)
 
+## Iptable Setting
+`upf-iptables.sh`
+```sh
+# delete default route
+ip route delete default via 10.100.3.1
+# add default route to n6gw n6net ip through dn0 interface
+ip route add default via 10.100.6.101 dev dn0
+
+# do snat(source nat) at dn0 interface output packet
+iptables -t nat -A POSTROUTING -o dn0  -j MASQUERADE
+# add accept forward rule in the top of the FORWARD table
+iptables -I FORWARD 1 -j ACCEPT
+```
+`n6gw-iptables.sh`
+```sh
+# delete default route
+ip route delete default
+# add default route to n6net gateway ip through dn0 interface
+ip route add default via 10.100.6.1 dev dn0
+
+# added route from UPF dnn CIDR to UPF n6net ip
+ip route add 10.60.0.0/16 via 10.100.6.100
+ip route add 10.61.0.0/16 via 10.100.6.100
+
+# do snat(source nat) at dn0 interface output packet
+iptables -t nat -A POSTROUTING -o dn0  -j MASQUERADE
+# add accept forward rule in the top of the FORWARD table
+iptables -I FORWARD 1 -j ACCEPT
+```
+
 ## Exercise: Configure N2 & N3 & N4 interface in Docker Compose
 In this exercise, we will use docker bridge network to set up these three interfaces.
 
@@ -77,16 +107,16 @@ networks:
     driver_opts:
       com.docker.network.bridge.name: br-free5gc
 ```
-For example, privnet is the bridge network for NFs internal communicaion. ex: Nnrf, Nudm...
+For example, `privnet` is the bridge network for NFs internal communicaion. ex: Nnrf, Nudm...
 
-Each NF, except for the `UPF`, is assigned an IP address within a `privnet` for internal communication. And assign it an alias for ease of use.
+Each NF, except for the `UPF`, is assigned an IP address within a `privnet` for internal communication. And assign it an alias for ease of use. 
 ```yaml
 networks:
-    privnet:
+  privnet:
     aliases:
-        - udr.free5gc.org
+      - udr.free5gc.org
 ```
-We create three bridge networks named `n1net`, `n2net`, `n3net` and `n6net`. Our goal is respectively assigned network to `AMF`, `SMF`, `UPF` and `UERANSIM`.
+We create three bridge networks named `n2net`, `n3net`, `n4net` and `n6net`. Our goal is respectively assigned network to `AMF`, `SMF`, `UPF` and `UERANSIM`. All of N1 msgs are carried on NGAP interface.
 
 ```yaml
 n3net:
@@ -130,11 +160,11 @@ In `gnbcfg.yaml`, `amfcfg.yaml`, `smfcfg.yaml` and `upfcfg.yaml`, you can find t
 ```yaml
   pfcp: # the IP address of N4 interface on this SMF (PFCP)
     # addr config is deprecated in smf config v1.0.3, please use the following config
-    nodeID: update here # the Node ID of this SMF
-    listenAddr: update here # the IP/FQDN of N4 interface on this SMF (PFCP)
-    externalAddr: update here # the IP/FQDN of N4 interface on this SMF (PFCP)
+    nodeID: TODO # the Node ID of this SMF
+    listenAddr: TODO # the IP/FQDN of N4 interface on this SMF (PFCP)
+    externalAddr: TODO # the IP/FQDN of N4 interface on this SMF (PFCP)
 ```
-Please replace `update here` with the configured N2, N3, and N4 addresses.
+Please replace `TODO` with the configured N2, N3, and N4 addresses.
 
 Tips: 
 In `smfcfg.yaml`, you will configure the `UPF` N3 interface address because it is required for setting up sessions during SM context creation. If you only use an alias when configuring this address, it may cause DNS resolution issues. Therefore, in `deploy_exercise.yaml`, you should set a static IP address for the `UPF` N3 network and use it here.
@@ -143,7 +173,7 @@ After configuring, clone [free5gc-compose](https://github.com/free5gc/free5gc-co
 
 You can use these commands to start or stop docker compose.
 ```sh
-ce ~/free5gc-compose
+cd ~/free5gc-compose
 
 // start
 docker compose -f deploy_exercise.yaml up
@@ -156,47 +186,14 @@ Refer [Create Subscriber via Webconsole](https://free5gc.org/guide/Webconsole/Cr
 
 And, attach to ueransim container and run ue
 ```sh
-// attach to container
+// attach to UERAMSIM container
 docker exec -it ueransim bash
 
 // run ue
 ./nr-ue -c config/uecfg.yaml
 ```
 And the expected result looks like:
-```sh
-2024-07-05 12:29:35.111] [nas] [info] UE switches to state [MM-DEREGISTERED/PLMN-SEARCH]
-[2024-07-05 12:29:35.111] [rrc] [debug] New signal detected for cell[1], total [1] cells in coverage
-[2024-07-05 12:29:36.572] [nas] [info] Selected plmn[208/93]
-[2024-07-05 12:29:36.573] [rrc] [info] Selected cell plmn[208/93] tac[1] category[SUITABLE]
-[2024-07-05 12:29:36.573] [nas] [info] UE switches to state [MM-DEREGISTERED/PS]
-[2024-07-05 12:29:36.573] [nas] [info] UE switches to state [MM-DEREGISTERED/NORMAL-SERVICE]
-[2024-07-05 12:29:36.574] [nas] [debug] Initial registration required due to [MM-DEREG-NORMAL-SERVICE]
-[2024-07-05 12:29:36.575] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
-[2024-07-05 12:29:36.576] [nas] [debug] Sending Initial Registration
-[2024-07-05 12:29:36.576] [rrc] [debug] Sending RRC Setup Request
-[2024-07-05 12:29:36.579] [rrc] [info] RRC connection established
-[2024-07-05 12:29:36.592] [rrc] [info] UE switches to state [RRC-CONNECTED]
-[2024-07-05 12:29:36.593] [nas] [info] UE switches to state [MM-REGISTER-INITIATED]
-[2024-07-05 12:29:36.596] [nas] [info] UE switches to state [CM-CONNECTED]
-[2024-07-05 12:29:36.691] [nas] [debug] Authentication Request received
-[2024-07-05 12:29:36.692] [nas] [debug] Received SQN [000000000027]
-[2024-07-05 12:29:36.692] [nas] [debug] SQN-MS [000000000000]
-[2024-07-05 12:29:36.735] [nas] [debug] Security Mode Command received
-[2024-07-05 12:29:36.735] [nas] [debug] Selected integrity[2] ciphering[0]
-[2024-07-05 12:29:36.961] [nas] [debug] Registration accept received
-[2024-07-05 12:29:36.962] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
-[2024-07-05 12:29:36.962] [nas] [debug] Sending Registration Complete
-[2024-07-05 12:29:36.962] [nas] [info] Initial Registration is successful
-[2024-07-05 12:29:36.963] [nas] [debug] Sending PDU Session Establishment Request
-[2024-07-05 12:29:36.964] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
-[2024-07-05 12:29:36.964] [nas] [debug] Sending PDU Session Establishment Request
-[2024-07-05 12:29:36.964] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
-[2024-07-05 12:29:37.173] [nas] [debug] Configuration Update Command received
-[2024-07-05 12:29:37.645] [nas] [debug] PDU Session Establishment Accept received
-[2024-07-05 12:29:37.645] [nas] [info] PDU Session establishment is successful PSI[1]
-[2024-07-05 12:29:37.688] [nas] [debug] PDU Session Establishment Accept received
-[2024-07-05 12:29:37.691] [nas] [info] PDU Session establishment is successful PSI[2]
-```
+![result](./images/result.png)
 And use `ping` to test it can reach date network
 ```sh
 ping -I uesimtun0 8.8.8.8
