@@ -8,12 +8,26 @@ services:
     volumes:
       - ./config/upfcfg.yaml:/free5gc/config/upfcfg.yaml
       - ./config/upf-iptables.sh:/free5gc/upf-iptables.sh
-    networks:
-    
     cap_add:
       - NET_ADMIN
     networks:
+      n6net:
+        ipv4_address: 10.100.6.100
 
+  free5gc-n6gw:
+    container_name: n6gw
+    build:
+      context: ./n6gw
+      args:
+        DEBUG_TOOLS: "false"
+    command: bash -c "./n6gw-iptables.sh && sleep infinity"
+    volumes: 
+      - ./config/n6gw_iptables.sh:/root/n6gw-iptables.sh
+    cap_add:
+      - NET_ADMIN
+    networks:
+      n6net:
+        ipv4_address: 10.100.6.101
 
   db:
     container_name: mongodb
