@@ -30,10 +30,8 @@ In free5GC, each NF (Network Function) has its own listening addresses used to r
 
 These three interfaces are the most important interfaces in the 5G system. Therefore, this lab will teach you how to configure the addresses for these interfaces.
 
-### N6 NAT
+### N6
 Interface to data network.
-
-n6gw will performs NAT on packets output through the N6 interface. Rules are set up in `n6gw-iptables.sh`.
 
 ### N9
 Interface for two UPFs communication.
@@ -64,6 +62,8 @@ docker0         8000.02426fa2174a       no              veth43f5e85
 Since the Docker bridge is implemented based on the Linux bridge, we can use `brctl`, a Linux utility or docker cli for managing bridges. Or use docker cli to manage it. [brctl document](https://man7.org/linux/man-pages/man8/brctl.8.html)
 
 ## Iptable Setting
+In this lab, `UPF` forward packet to n6gw. `n6gw` will forward packets from `UPF` to dn and do SNAT(source NAT). Rules are set up in `upf-iptables.sh` and `n6gw-iptables.sh`.
+
 `upf-iptables.sh`
 ```sh
 # delete default route
@@ -71,8 +71,6 @@ ip route delete default via 10.100.3.1
 # add default route to n6gw n6net ip through dn0 interface
 ip route add default via 10.100.6.101 dev dn0
 
-# do snat(source nat) at dn0 interface output packet
-iptables -t nat -A POSTROUTING -o dn0  -j MASQUERADE
 # add accept forward rule in the top of the FORWARD table
 iptables -I FORWARD 1 -j ACCEPT
 ```
@@ -94,7 +92,7 @@ iptables -I FORWARD 1 -j ACCEPT
 ```
 
 ## Exercise: Configure N2 & N3 & N4 interface in Docker Compose
-In this exercise, we will use docker bridge network to set up these three interfaces.
+In this exercise, we will use docker bridge network to set up these three interfaces. 
 
 In bottom of exercise/deploy_exercise.yaml, you can find network setting.
 ```yaml
