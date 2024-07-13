@@ -153,3 +153,185 @@ func main() {
 Any other goroutine that tries to access the shared resource while the mutex is locked will be blocked until the mutex is unlocked.
 
 - [Source Code of Mutex in Go](https://go.dev/src/sync/mutex.go)
+
+## Channel
+Goroutines run in the same address space, so access to shared memory must be synchronized. In Golang, Channel is a powerful concurrency primitive function used for passing data between different goroutines. It provides an effective communication mechanism that allows goroutines to safely exchange information without requiring additional synchronization mechanisms.
+
+To create a channel, you can use Golang's built-in **`make`** function to establish an integer-type channel. Once successfully created, you can send data to the channel and receive data in another goroutine.
+
+Channels can be used to receive and send data through the **`<-`** operator:
+```go
+var c chan int
+
+ch := make(chan int)
+cs := make(chan string)
+cf := make(chan interface{})
+
+ch <- v    // transmit v to channel ch
+v := <-ch  // receive data from channel 'ch'，and asign value to v
+
+close(ch) //close Channel
+```
+
+You can also read a channel with iteration (**`for range`**):
+```go=
+func main() {
+  ch := make(chan int)
+  go func() {
+    for i := 0; i < 10; i++ { //assign integers to ch
+      ch <- i
+    }
+    close(ch)
+  }()
+
+  for v := range ch { //receive datas from ch iteratively
+    fmt.Println(v)
+  }
+}
+```
+
+## WaitGroup
+Previously, you have learned about concurrency for goroutines, but how can you control the concurrency? One of the ways is through **`WaitGroup`**. When you have a task that you want to split it into different jobs for execution, you need to make the main goroutine waiting for the other goroutines being completed before continuing execution.
+
+Typically, you need to declare a WaitGroup with a **`pointer`**. There are 3 ways to declare it:
+```go=
+wg := &sync.WaitGroup{}
+
+wg := new(sync.WaitGroup)
+
+var wg = &sync.WaitGroup{} //global declaration
+```
+After declaring it, you can use an integer to add tasks:
+```go=
+func main() {
+var wg sync.WaitGroup
+
+    wg.Add(2)//integer means the amounts you have to wait
+gofunc() {
+        time.Sleep(2 * time.Second)
+        fmt.Println("job 1 done.")
+        wg.Done()
+    }()
+gofunc() {
+        time.Sleep(1 * time.Second)
+        fmt.Println("job 2 done.")
+        wg.Done()
+    }()
+    wg.Wait() // make the main goroutine waiting other goroutines
+    fmt.Println("All Done.")
+}
+```
+
+:star: **Notice**: Every time you call **`wg.Add(int)`**, you must ensure that the number of times you call **`wg.Add()`**, there should be a corresponding **`wg.Done()`** when the wait group completes. Otherwise: 
+* goroutines numbers > wg.Add numbers : some goroutines would not execute
+* goroutines numbers < wg.Add numbers : cause Deadlock
+    
+## Context
+Context is another method to control concurrency. It can manage the termination of multiple goroutines and resources allocation. 
+In the **WaitGroup** chapter, we introduced spliting a task into multiple jobs to run in the background. If you want to proactively notify and stop running jobs, you can achieve this with **`channel+select `** statements. However, if the situation is more complex, such as having a large number of background goroutines or goroutines within goroutines, you will need a more powerful tool.
+
+![queue flow-worker job](./queue flow-worker job.png)
+
+As shown in the diagram above, there are 3 worker nodes, each with many running jobs. We can declare **`context.Background()`** in the main program and create a separate **`context`** for each worker node. This way, closing one of the contexts will stop the jobs running in that worker.
+```go=
+func main() {
+    ctx, cancel := context.WithCancel(context.Background())
+
+    go worker(ctx, "node01")
+    go worker(ctx, "node02")
+    go worker(ctx, "node03")
+
+    time.Sleep(5 * time.Second) //stop the context (goroutine) after 5 seconds
+    fmt.Println("stop the gorutine")
+    cancel()
+    time.Sleep(5 * time.Second) //canceling needs some time
+}
+
+func worker(ctx context.Context, name string) {
+    for {
+        select {
+        case <-ctx.Done(): //ctx is canceled, from withCancel function
+            fmt.Println(name, "got the stop channel")
+            return
+        default:
+            fmt.Println(name, "still working")
+            time.Sleep(1 * time.Second)
+        }
+    }
+}
+```
+As above statement, you can stop multiple worker nodes with a single context simultaneously. You can also implement a graceful shutdown to cancel the running jobs through this approach.
+
+Of course, you can also declare multiple contexts and **`cancel`** functions, waiting for goroutines to complete their jobs with **`cancel`** and **`Done`**:
+```go=
+func main() {
+	ctx1, cancel1 := context.WithCancel(context.Background())
+	ctx2, cancel2 := context.WithCancel(context.Background())
+
+	go func() {
+		task1()
+		cancel1() //call cancel1 function
+	}()
+
+	go func() {
+		task2()
+		cancel2()
+	}()
+	
+	<-ctx1.Done() //blocked until the context is canceled
+	<-ctx2.Done()
+	
+	//-----------------
+	// keep going down to execute
+}
+
+func task1() {
+	fmt.Println("Starting job1")
+	time.Sleep(3 * time.Second)
+	fmt.Println("Finished job1")
+}
+
+func task2() {
+	fmt.Println("Starting job2")
+	time.Sleep(2 * time.Second)
+	fmt.Println("Finished job2")
+}
+```
+
+## Exercise
+- What is atomic operation?
+- Will the following work in parallel code?
+```go
+var a int64
+
+func main() {
+    var wg sync.WaitGroup
+    wg.Add(1)
+    
+    go func() {
+        increment()
+        wg.Done()
+    }()
+
+    wg.Wait()
+
+    fmt.Println("Final value of a:", a)
+}
+
+func increment() {
+    for i := 0; i < 100000000; i++ {
+        atomic.AddInt64(&a, 1)
+    }
+}
+```
+- What do the **`wg.Add(1)`** and **`wg.Done()`** do in the above statement? And what does the **`1`** repersent?
+- Please define a Counter struct with an integer field and a sync.Mutex, then implement a function to increment the counter safely.
+- Why is there a fetal error in following code?
+```go=
+func main() {
+    var intChan chan int
+    fmt.Println(intChan)
+    intChan <- 10
+}
+```
+
