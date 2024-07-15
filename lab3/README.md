@@ -38,7 +38,10 @@ Interface to data network.
 
 ### N9
 
-Interface for two UPFs communication.
+Interface for transmitting the data plane traffic between I-UPF and PSA-UPF.
+
+More details:
+- [What is the 5G User Plane Function (UPF)?](https://techcommunity.microsoft.com/t5/azure-for-operators-blog/what-is-the-5g-user-plane-function-upf/ba-p/3690887)
 
 ## Docker bridge network
 
