@@ -182,6 +182,15 @@ Please replace `TODO` with the configured N2, N3, and N4 addresses.
 Tips:
 In `smfcfg.yaml`, you will configure the `UPF` N3 interface address because it is required for setting up sessions during SM context creation. If you only use an alias when configuring this address, it may cause DNS resolution issues. Therefore, in `deploy_exercise.yaml`, you should set a static IP address for the `UPF` N3 network and use it here.
 
+And remove `gnb.free5gc.org` in `free5gc-compose/config/uecfg.yaml`
+
+```yaml
+# List of gNB IP addresses for Radio Link Simulation
+gnbSearchList:
+  - 127.0.0.1
+  - gnb.free5gc.org # remove this line
+```
+
 After configuring, clone [free5gc-compose](https://github.com/free5gc/free5gc-compose). Then move `free5GLab/lab3/exercise/deploy_exercise.yaml` to `free5gc-compose/` and copy the contents of the files from the `free5GLab/lab3/exercise/config` directory to `free5gc-compose/config`.
 
 You can use these commands to start or stop docker compose.
