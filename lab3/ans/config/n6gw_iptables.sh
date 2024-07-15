@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Configure iptables in UPF
+# Configure iptables in N6GW
 #
 ip route delete default
 ip route add default via 10.100.6.1 dev dn0
