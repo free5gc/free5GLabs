@@ -1,0 +1,7 @@
+pfcp:
+  addr: upf.n4.org # IP addr for listening
+  nodeID: upf.n4.org # External IP or FQDN can be reached
+
+gtpu:
+  ifList:
+    - addr: upf.n3.org
