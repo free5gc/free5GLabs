@@ -1,0 +1,7 @@
+ngapIp: gnb.n2.org # gNB's local IP address for N2 Interface (Usually same with local IP)
+gtpIp: gnb.n3.org # gNB's local IP address for N3 Interface (Usually same with local IP)
+
+# List of AMF address information
+amfConfigs:
+  - address: amf.n2.org
+    port: 38412
