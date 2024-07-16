@@ -174,7 +174,7 @@ close(ch) //close Channel
 ```
 
 You can also read a channel with iteration (**`for range`**):
-```go=
+```go
 func main() {
   ch := make(chan int)
   go func() {
@@ -190,11 +190,108 @@ func main() {
 }
 ```
 
+###  :dart: Unbuffered channel 
+In fact, channels can be categorized into various types based on different characteristics. According to buffer capacity, channels can be divided into two types: **++unbuffered channels++** and **++buffered channels++**. 
+When we used make to create a channel above, we did not assign it a capacity value. By default, the buffer capacity would be 0, making the created channel an **unbuffered channel**. Unbuffered channels perform both sending and receiving operations with blocking operation, i.e., if a function attempts to read from the channel (**`v := <-ch`**), it will be blocked until the channel receives data. Similarly, any send operation (**`ch <- i`**) will also be blocked until the data in the channel is read out.
+
+Therefore, we can understand that unbuffered channels ensure that both read and write operations must be completed before the main program finished, achieving synchronization through this characteristic. As a result, this type of channel **++does not require additional synchronization mechanisms++**.
+```go
+func main() {
+    c := make(chan bool)
+    go func() {
+        fmt.Println("free5GC so Good")
+        c <- true
+    }()
+    <-c
+}
+```
+In this example, the main function ultimately uses **`<-c`**. Due to the "blocking" characteristic of unbuffered channels, the main function must wait for the channel to read out a value before it terminats.
+
+###  :dart: Buffered channel 
+Buffered channels differ from unbuffered channels in that, as long as the buffer has sufficient capacity, the channel can continue receiving values without requiring them to be read immediately. This means that operations will not be blocked, and the main program does't need to wait for the channel to read out values before it terminates:
+```go
+func main() {
+    c := make(chan bool, 1)  //Declare the capacity value (=1) of the buffer
+    go func() {
+        fmt.Println("free5GC so Good")
+        c <- true
+    }()
+    <-c
+} 
+```
+When a buffered channel receives a value with **`c <- true`**, the main program will not wait for the channel to read the value and will terminate prematurely. As a result, "free5GC so Good" will not be printed. ++This is the biggest difference between buffered and unbuffered channels.++
+
+### :dart: Unidirectional Channel
+Channels is directional, categorized into **++Bidirectional++ and ++Unidirectional++**. **Unidirectional channels** only allow send or receive operations, and can be divided into **++send-only channels++** and **++receive-only channels++** furtherly. The characteristic of unidirectional data transmission provides higher security and readability in programs.
+
+Previously, we created the most common ++Bidirectional channels++ by simply declaring the data type required by the channel or specifying the buffer capacity. When creating unidirectional channels, the **`<-`** operator is used to indicate the direction.
+* **Read-Only Channel**:
+    * Also known as ++Receive-Only Channels++
+    * Only allow read operations from the channel, no write operations
+    * Restrict goroutines to only read data from the channel, which can improve the program's readability
+    * Creation method:
+    ```go
+    c := make(<- chan int, 10) //notice the <- operator direction
+    c <- 1 //cannot write to c
+    fmt.Println(<-c)
+    ```
+* **Write-Only Channel**:
+    * Also known as ++Send-Only Channel++
+    * Only allow write operations from the channel, no read operations
+    * Sending data to other goroutines and enhancing security
+    * Creation method:
+    ```go
+    c := make(chan <- int, 10)
+    c <- 1
+    ```
+## Select
+In the previous sections, we learned how to create channels and categorize them. We understand that when a single channel performs a send or receive operation, it is a blocking operation. When a program involves multiple channels for communication, Golang provides the select statement for this purpose. It allows a goroutine to wait on multiple communication operations simultaneously. Its usage is similar to **`switch`**, relying on **`case`** and **`default`**.
+
+**`select`** is in blocking operations; it starts execution only when a `case` is ready. Unlike **`switch`**, **`select`** doesn't execute cases **++in order++** but **++randomly chooses++** one from the ready cases (channels). There are several characteristics：
+* **`select`** can only work with channels; using other types will result to error
+* If a channel has no value to read, it causes a panic
+* When none of the cases are ready, **`select`** executes the **`default`**. Notice that without a **`default`** case, select will be blocked if none of the cases are ready
+```go
+func main() {
+    ch := make(chan int, 1)
+
+    select {
+    case <-ch:
+        fmt.Println("random 01")
+    case <-ch:
+        fmt.Println("random 02")
+    default:
+        fmt.Println("exit")
+    }
+}
+```
+In the example above, due to **`ch`** does not have a value, none of the cases are ready, so the **`default`** case will be executed directly, then printing "exit".
+### :tada: Setup Timeout mechanism
+Sometimes, we encounter situations where a goroutine takes too long to execute or gets into blocking. In such cases, we don't want the entire program to be blocked within **`select`**. To handle this, we can setup **`timeout`** with **`select`**:
+```go
+func main() {
+    timeout := make(chan bool, 1)
+    go func() {
+        time.Sleep(2 * time.Second)
+        timeout <- true
+    }()
+    ch := make(chan int)
+    select {
+    case <-ch:
+    case <-timeout:
+        fmt.Println("Open5GS")
+    case <-time.After(time.Second * 1): //Create a Read-Only Channel which will receive time.Time value
+        fmt.Println("free5GC")
+    }
+}
+```
+In the example above, Once the **`select`** operation exceeds 1 second, and then it would print "free5GC".
+
 ## WaitGroup
 Previously, you have learned about concurrency for goroutines, but how can you control the concurrency? One of the ways is through **`WaitGroup`**. When you have a task that you want to split it into different jobs for execution, you need to make the main goroutine waiting for the other goroutines being completed before continuing execution.
 
 Typically, you need to declare a WaitGroup with a **`pointer`**. There are 3 ways to declare it:
-```go=
+```go
 wg := &sync.WaitGroup{}
 
 wg := new(sync.WaitGroup)
@@ -202,7 +299,7 @@ wg := new(sync.WaitGroup)
 var wg = &sync.WaitGroup{} //global declaration
 ```
 After declaring it, you can use an integer to add tasks:
-```go=
+```go
 func main() {
 var wg sync.WaitGroup
 
@@ -233,7 +330,7 @@ In the **WaitGroup** chapter, we introduced spliting a task into multiple jobs t
 ![queue_flow_worker_job](./queue_flow_worker_job.png)
 
 As shown in the diagram above, there are 3 worker nodes, each with many running jobs. We can declare **`context.Background()`** in the main program and create a separate **`context`** for each worker node. This way, closing one of the contexts will stop the jobs running in that worker.
-```go=
+```go
 func main() {
     ctx, cancel := context.WithCancel(context.Background())
 
@@ -263,7 +360,7 @@ func worker(ctx context.Context, name string) {
 As above statement, you can stop multiple worker nodes with a single context simultaneously. You can also implement a graceful shutdown to cancel the running jobs through this approach.
 
 Of course, you can also declare multiple contexts and **`cancel`** functions, waiting for goroutines to complete their jobs with **`cancel`** and **`Done`**:
-```go=
+```go
 func main() {
 	ctx1, cancel1 := context.WithCancel(context.Background())
 	ctx2, cancel2 := context.WithCancel(context.Background())
