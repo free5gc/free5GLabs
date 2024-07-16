@@ -191,10 +191,10 @@ func main() {
 ```
 
 ###  :dart: Unbuffered channel 
-In fact, channels can be categorized into various types based on different characteristics. According to buffer capacity, channels can be divided into two types: **++unbuffered channels++** and **++buffered channels++**. 
+In fact, channels can be categorized into various types based on different characteristics. According to buffer capacity, channels can be divided into two types: **unbuffered channels** and **buffered channels**. 
 When we used make to create a channel above, we did not assign it a capacity value. By default, the buffer capacity would be 0, making the created channel an **unbuffered channel**. Unbuffered channels perform both sending and receiving operations with blocking operation, i.e., if a function attempts to read from the channel (**`v := <-ch`**), it will be blocked until the channel receives data. Similarly, any send operation (**`ch <- i`**) will also be blocked until the data in the channel is read out.
 
-Therefore, we can understand that unbuffered channels ensure that both read and write operations must be completed before the main program finished, achieving synchronization through this characteristic. As a result, this type of channel **++does not require additional synchronization mechanisms++**.
+Therefore, we can understand that unbuffered channels ensure that both read and write operations must be completed before the main program finished, achieving synchronization through this characteristic. As a result, this type of channel **does not require additional synchronization mechanisms**.
 ```go
 func main() {
     c := make(chan bool)
@@ -219,14 +219,14 @@ func main() {
     <-c
 } 
 ```
-When a buffered channel receives a value with **`c <- true`**, the main program will not wait for the channel to read the value and will terminate prematurely. As a result, "free5GC so Good" will not be printed. ++This is the biggest difference between buffered and unbuffered channels.++
+When a buffered channel receives a value with **`c <- true`**, the main program will not wait for the channel to read the value and will terminate prematurely. As a result, "free5GC so Good" will not be printed. This is the biggest difference between buffered and unbuffered channels.
 
 ### :dart: Unidirectional Channel
-Channels is directional, categorized into **++Bidirectional++ and ++Unidirectional++**. **Unidirectional channels** only allow send or receive operations, and can be divided into **++send-only channels++** and **++receive-only channels++** furtherly. The characteristic of unidirectional data transmission provides higher security and readability in programs.
+Channels is directional, categorized into **Bidirectional and Unidirectional**. **Unidirectional channels** only allow send or receive operations, and can be divided into **send-only channels** and **receive-only channels** furtherly. The characteristic of unidirectional data transmission provides higher security and readability in programs.
 
-Previously, we created the most common ++Bidirectional channels++ by simply declaring the data type required by the channel or specifying the buffer capacity. When creating unidirectional channels, the **`<-`** operator is used to indicate the direction.
+Previously, we created the most common Bidirectional channels by simply declaring the data type required by the channel or specifying the buffer capacity. When creating unidirectional channels, the **`<-`** operator is used to indicate the direction.
 * **Read-Only Channel**:
-    * Also known as ++Receive-Only Channels++
+    * Also known as **Receive-Only Channels**
     * Only allow read operations from the channel, no write operations
     * Restrict goroutines to only read data from the channel, which can improve the program's readability
     * Creation method:
@@ -236,7 +236,7 @@ Previously, we created the most common ++Bidirectional channels++ by simply decl
     fmt.Println(<-c)
     ```
 * **Write-Only Channel**:
-    * Also known as ++Send-Only Channel++
+    * Also known as **Send-Only Channel**
     * Only allow write operations from the channel, no read operations
     * Sending data to other goroutines and enhancing security
     * Creation method:
@@ -247,7 +247,7 @@ Previously, we created the most common ++Bidirectional channels++ by simply decl
 ## Select
 In the previous sections, we learned how to create channels and categorize them. We understand that when a single channel performs a send or receive operation, it is a blocking operation. When a program involves multiple channels for communication, Golang provides the select statement for this purpose. It allows a goroutine to wait on multiple communication operations simultaneously. Its usage is similar to **`switch`**, relying on **`case`** and **`default`**.
 
-**`select`** is in blocking operations; it starts execution only when a `case` is ready. Unlike **`switch`**, **`select`** doesn't execute cases **++in order++** but **++randomly chooses++** one from the ready cases (channels). There are several characteristics：
+**`select`** is in blocking operations; it starts execution only when a `case` is ready. Unlike **`switch`**, **`select`** doesn't execute cases **in order** but **randomly chooses** one from the ready cases (channels). There are several characteristics：
 * **`select`** can only work with channels; using other types will result to error
 * If a channel has no value to read, it causes a panic
 * When none of the cases are ready, **`select`** executes the **`default`**. Notice that without a **`default`** case, select will be blocked if none of the cases are ready
