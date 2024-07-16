@@ -328,6 +328,7 @@ Context is another method to control concurrency. It can manage the termination 
 In the **WaitGroup** chapter, we introduced spliting a task into multiple jobs to run in the background. If you want to proactively notify and stop running jobs, you can achieve this with **`channel+select `** statements. However, if the situation is more complex, such as having a large number of background goroutines or goroutines within goroutines, you will need a more powerful tool.
 
 ![queue_flow_worker_job](./queue_flow_worker_job.png)
+> Source: [小惡魔.AppleBOY](https://blog.wu-boy.com/2020/05/understant-golang-context-in-10-minutes/)
 
 As shown in the diagram above, there are 3 worker nodes, each with many running jobs. We can declare **`context.Background()`** in the main program and create a separate **`context`** for each worker node. This way, closing one of the contexts will stop the jobs running in that worker.
 ```go
