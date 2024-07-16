@@ -18,7 +18,7 @@ In Lab3, you will learn how to deploy free5GC with docker and set up interface n
 
 ## Listening Address
 
-Listening Address the IP address and port used by a server to listen for connections from clients. These addresses and ports are used to accept requests from clients. ex: 192.168.100.101:12345
+Listening Address is the IP address and port used by a server to listen for connections from clients. These addresses and ports are used to accept requests from clients. ex: 192.168.100.101:12345
 
 In free5GC, each NF (Network Function) has its own listening addresses used to receive and process requests sent by other NFs.
 
@@ -38,7 +38,7 @@ Interface to data network.
 
 ### N9
 
-Interface for transmitting the data plane traffic between I-UPF and PSA-UPF.
+Interface for transmitting the data plane traffic between `I-UPF` and `PSA-UPF`.
 
 More details:
 - [What is the 5G User Plane Function (UPF)?](https://techcommunity.microsoft.com/t5/azure-for-operators-blog/what-is-the-5g-user-plane-function-upf/ba-p/3690887)
@@ -67,11 +67,11 @@ bridge name     bridge id               STP enabled     interfaces
 docker0         8000.02426fa2174a       no              veth43f5e85
 ```
 
-Since the Docker bridge is implemented based on the Linux bridge, we can use `brctl`, a Linux utility or docker cli for managing bridges. Or use docker cli to manage it. [brctl document](https://man7.org/linux/man-pages/man8/brctl.8.html)
+Since the Docker bridge is implemented based on the Linux bridge, we can use `brctl` or `docker cli` to managing bridges. [brctl document](https://man7.org/linux/man-pages/man8/brctl.8.html)
 
 ## Iptable Setting
 
-In this lab, `UPF` forward packet to n6gw. `n6gw` will forward packets from `UPF` to dn and do SNAT(source NAT). Rules are set up in `upf-iptables.sh` and `n6gw-iptables.sh`.
+In this lab, `UPF` forward packet to `n6gw`. `n6gw` will forward packets from `UPF` to dn and do SNAT(source NAT). Rules are set up in `upf-iptables.sh` and `n6gw-iptables.sh`.
 
 `upf-iptables.sh`
 
@@ -130,7 +130,7 @@ networks:
     aliases:
       - udr.free5gc.org
 ```
-We create three bridge networks named `n2net`, `n3net`, `n4net` and `n6net`. Our goal is respectively assigned network to `AMF`, `SMF`, `UPF` and `UERANSIM`. All of N1 msgs are carried on NGAP interface.
+We create four bridge networks named `n2net`, `n3net`, `n4net` and `n6net`. Our goal is respectively assigned network to `AMF`, `SMF`, `UPF` and `UERANSIM`. All of N1 msgs are carried on NGAP interface.
 
 ```yaml
 n3net:
@@ -210,7 +210,7 @@ docker compose -f deploy_exercise.yaml down
 
 Refer [Create Subscriber via Webconsole](https://free5gc.org/guide/Webconsole/Create-Subscriber-via-webconsole/#5-add-new-subscriber) to create subscriber
 
-And, attach to ueransim container and run UE
+In addition, attach to ueransim container and run UE
 
 ```sh
 // attach to UERAMSIM container
