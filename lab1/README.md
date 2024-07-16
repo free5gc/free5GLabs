@@ -246,7 +246,7 @@ func main() {
     }
 }
 ```
-In this example, main function中創造了一個buffered channel 'c'，並將這個channel的write-only end assign to 's'，read-only end assign to 'r'。你可以把s與r視為Unidirectional Channel，這樣的設計是為了限制goroutine對於channel的操作，例如：Threat function就沒有權限去 write 'r'，但其他 goroutines是可以透過寫入's'，而write to 'c'。
+In this example, the main function creates a buffered channel **`c`**. The write-only end of this channel is assigned to **`s`**, and the read-only end is assigned to **`r`**. You can consider **`s`** and **`r`** as unidirectional channels. This design restricts goroutines from performing certain operations on the channel. For example, the **`Thread`** function does not have permission to write to **`r`**, but other goroutines can write to **`s`**, and consequently to **`c`**.
 * [Understanding Go's onw-way channels](https://stackoverflow.com/questions/27642086/how-to-use-chan-and-chan-for-one-directional-communication)
 
 ## Select
@@ -495,10 +495,12 @@ func main() {
 Without using **`make`** to allocate space, the channel is used directly. It will cause fetal error: all goroutines are asleep - deadlock!
 
 - In Topic: **Select**-**Setup Timeout mechanism**, We offered a sample code that showed how to setup **`timeout`** with **`select`**. Actually, there is a potentail error (Hint: memory leak) because of **`time.After`** usage. Please describe the reason for the error and how to fix it.
+
 The previous sample code avoids memory leaks because **`time.After`** executes first. This ensures there's no resource buildup. However, if the **`go fun`**'s waiting time is shorter than **`time.After`**'s trigger time, **`case <-timeout`** would execute first. This could prevent **`time.After`** from correctly returning a value, potentially causing a memory leak. Here are possible solutions:
     * Pull **`time.After`** outside of **`select`** and then assign its return value to a **`variable`** before using it in select
     * Alternatively, use **`time.NewTimer`** and **`timer.Stop()`** instead of **`time.After()`** to more flexibly manage timer stops and memory release, thereby avoiding potential memory leaks associated with **`time.After()`**:
-    ```go
+    
+```go
     func main() {
     timeout := make(chan bool, 1)
     go func() {
@@ -522,8 +524,8 @@ The previous sample code avoids memory leaks because **`time.After`** executes f
         }
     }
 
-    ```
-    * reference: [Memory Leak in Go](https://arangodb.com/2020/09/a-story-of-a-memory-leak-in-go-how-to-properly-use-time-after/)
+```
+* reference: [Memory Leak in Go](https://arangodb.com/2020/09/a-story-of-a-memory-leak-in-go-how-to-properly-use-time-after/)
 
 ## Reference
 * [Uber_go_guide_tw](https://github.com/ianchen0119/uber_go_guide_tw)
