@@ -403,8 +403,9 @@ func task2() {
 
 ## Exercise
 - What is atomic operation?
-- Will the following work in parallel code?
+- Does the "Bad code" have concurrency issues? Why? And will the following "good code" work in parallel? 
 ```go
+//Bad code
 var a int64
 
 func main() {
@@ -423,7 +424,33 @@ func main() {
 
 func increment() {
     for i := 0; i < 100000000; i++ {
-        atomic.AddInt64(&a, 1)
+        go func() {
+             a = a + 1    
+        }()
+    }
+}
+```
+```go
+//goog code
+var a int64
+
+func main() {
+    var wg sync.WaitGroup
+    wg.Add(1)
+
+    go func() {
+        increment()
+        wg.Done()
+    }()
+
+    wg.Wait()
+
+    fmt.Println("Final value of a:", a)
+}
+
+func increment() {
+    for i := 0; i < 100000000; i++ {
+        go atomic.AddInt64(&a, 1)
     }
 }
 ```
@@ -442,8 +469,9 @@ func main() {
 ## Answer
 - What is atomic operation?
 An atomic operation is a low-level operation that is completed in a single step relative to other threads or processes. Without locks, there are only simple CPU instructions that cannot be further subdivided into smaller steps.
-- Will the following work in parallel code?
+- Does the "Bad code" have concurrency issues? Why? And will the following "good code" work in parallel?
 ```go
+//Bad code
 var a int64
 
 func main() {
@@ -462,11 +490,39 @@ func main() {
 
 func increment() {
     for i := 0; i < 100000000; i++ {
-        atomic.AddInt64(&a, 1)
+        go func() {
+             a = a + 1    
+        }()
     }
 }
 ```
-Yes, The **`atomic.AddInt64`** ensures that the increment operation on the **`a`** is performed atomically. This means that the increment operation cannot be interrupted, ensuring the correctness and expected result even when it's accessed by multiple goroutines.
+```go
+//goog code
+var a int64
+
+func main() {
+    var wg sync.WaitGroup
+    wg.Add(1)
+
+    go func() {
+        increment()
+        wg.Done()
+    }()
+
+    wg.Wait()
+
+    fmt.Println("Final value of a:", a)
+}
+
+func increment() {
+    for i := 0; i < 100000000; i++ {
+        go atomic.AddInt64(&a, 1)
+    }
+}
+```
+Yes, in the original "Bad code", **`a = a + 1`** is not an atomic operation. This operation is divided into multiple steps: reading the value of **`a`**, adding 1, and then writing it back to **`a`**. The **`go func()`** inside the loop creates multiple goroutines that execute these steps simultaneously, interfering with each other and leading to unpredictable results.
+
+Yes, the **`atomic.AddInt64`** of "good code" ensures that the increment operation on the **`a`** is performed atomically. This means that the increment operation cannot be interrupted, ensuring the correctness and expected result even when it's accessed by multiple goroutines.
 - What do the **`wg.Add(1)`** and **`wg.Done()`** do in the above statement? And what does the **`1`** repersent?
     * **`wg.Add(1)`** and **`wg.Done()`** are used in conjunction with a sync.WaitGroup to synchronize the execution of the main goroutine with the completion of the incrementing goroutine
     * The argument **`1`** indicates that 1 goroutine is being added to the count of goroutines that the WaitGroup will wait for.
