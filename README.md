@@ -10,3 +10,4 @@ This document helps the lab newbies (or anyone who interested in 5G Core) to und
 - Lab 4: Service-Based Architecture (HTTP protocol)
 - Lab 5: 5G protocol stack observation (tcpdump)
 - Lab 6: [Git & GitHub](./lab6/README.md)
+- Lab 7: [CI/CD with GitHub Actions](./lab7/README.md)
