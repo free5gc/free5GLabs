@@ -547,5 +547,97 @@ When the egress queue is closed, netif_schedule is called to schedule the device
 
 ### L3
 
+#### Main Tasks:
+1. Sanity Check: Verify checksum and ensure headers are within their specified fields.
+2. Firewalling: Netfilter subsystem (used at multiple points in the packet processing flow).
+Option:
+3. IP Options [details](https://net.academy.lv/lection/net_LS-08ENa_ip-options.pdf)
+4. Fragmentation:
+Fragmentation and reassembly consume CPU resources, increasing latency. The kernel may use Path MTU Discovery to determine the maximum MTU to avoid fragmentation, updating the routing table with the discovered PMTU.
 
+
+#### Initial Setup
+
+Handled by ```ip_init```
+1. Registers handlers
+2. Initializes routing subsystem
+3. Sets up the infrastructure for managing IP endpoints
+
+#### Interaction with Netfilter
+
+Netfilter has hooks at various points in the network stack. When a packet or kernel condition matches, the packet passes through these hooks.
+
+Common hooks include:
+
+1. Packet reception
+2. Packet forwarding
+    *  Prerouting
+    *  Postrouting
+5. Packet transmission
+
+#### Interaction with Routing Subsystem
+
+* ```ip_route_input```:
+Determines the packet's fate: whether to send it to local or forward it.
+* ```ip_route_output_flow```:
+Returns a gateway and egress net_device.
+* ```dst_pmtu```:
+Retrieves the PMTU from a specific field in the routing table.
+* ```ip_route_… functions```:
+    Query the routing table to make decisions based on:
+    1. Source IP
+    2. Destination IP
+    3. Type of Service (ToS)
+    4. Receiving device
+    5. Sendable devices
+
+#### Handling IP Packets
+Handling IP Packets
+
+Registered kernel handler: ```ip_rcv```
+
+After performing sanity checks on the packet, it calls the Netfilter hook.
+
+Other processing is completed by ```ip_rcv_finish```.
+
+```
+/*
+ * IP receive entry point
+ */
+int ip_rcv(struct sk_buff *skb, struct net_device *dev, struct packet_type *pt,
+           struct net_device *orig_dev)
+{
+    struct net *net = dev_net(dev);
+
+    skb = ip_rcv_core(skb, net);
+    if (skb == NULL)
+        return NET_RX_DROP;
+
+    return NF_HOOK(NFPROTO_IPV4, NF_INET_PRE_ROUTING,
+                   net, NULL, skb, dev, NULL,
+                   ip_rcv_finish);
+}
+
+```
+
+```ip_rcv_finish```
+
+1. Determines whether the packet should be forwarded to localhost or to the next hop.
+2. Handles some IP options.
+
+[more details](<https://github.com/torvalds/linux/blob/master/net/ipv4/ip_input.c>)
+
+#### Forwarding
+
+Relevant functions are defined in [ip_forward.c](<https://github.com/torvalds/linux/blob/master/net/ipv4/ip_forward.c>)
+
+There are only two functions:
+
+```ip_forward```: Handles all packets with addresses different from local ones.
+1. Ensures the packet address can be forwarded.
+2. Decreases TTL.
+3. Fragmentation (based on MTU).
+4. Sends to the outgoing device.
+
+```ip_forward_finish```: At this point, all checks are completed, and the packet is ready to be sent to another system.
 
