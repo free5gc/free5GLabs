@@ -252,7 +252,7 @@ fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_GENERIC);
 /* format the request */
 send(fd, &request, **sizeof**(request));
 n = recv(fd, &response, RSP_BUFFER_SIZE);
-/* interpret the response n */
+/* interpret the response */
 ```
 #### Netlinl message format
 
@@ -288,7 +288,7 @@ A message can contain a second header defining the type of netlink message; the 
 - `NETLINK_KOBJECT_UEVENT` for communications from kernel to userspace (for an application to subscribe to kernel events)
 - `NETLINK_GENERIC` for users to develop application specific messages
 
-[a comparison between ioctl & Netlink](<https://medium.com/thg-tech-blog/on-linux-netlink-d7af1987f89d>)
+[A comparison between ioctl & Netlink](<https://medium.com/thg-tech-blog/on-linux-netlink-d7af1987f89d>)
 
 [Netlink in free5gc dataplane](<https://free5gc.org/blog/20230920/Introduction_of_gtp5g_and_some_kernel_concepts/#free5gc-upf>)
 
