@@ -449,14 +449,103 @@ NETLINK_ROUTE:
     disciplines, traffic classes, and packet classifiers
 
 
-## Forwarding
+## How Kernel Receive and Transmit Packet
+The following shows the different PDUs associated with three layer of the protocol stack in Kernel.
+1. L2: Frame
+2. L3: Packet
+3. L4: Segment
+
+
+### Interrupt & Driver
+When an interface receives a packet, the driver, device, and kernel work together using interrupts to handle the packet. The detailed process is as follows:
+
+1. Device Receives Packet: The network interface card (NIC) or network device receives the packet and converts it to an electrical signal.
+2. Device Generates Interrupt: The device sends an interrupt signal to the CPU to indicate that a packet has arrived.
+3. CPU Acknowledges Interrupt: The CPU halts its current tasks and identifies the interrupt source using the Interrupt Vector Table (IVT).
+4. CPU Executes ISR: The CPU runs the Interrupt Service Routine (ISR) from the driver layer to handle the interrupt, which processes the incoming packet.
+5. Driver Processes Packet: The ISR passes the packet information to the driver, which processes it, such as parsing headers and handling data.
+6. Kernel Processes Packet: The driver may pass the packet to the kernel for further processing, such as routing and TCP/IP handling.
+7. CPU Resumes Tasks: After packet processing, the CPU resumes its previous tasks.
+
+* IRQ (Interrupt Request): A signal sent by a hardware device to the CPU indicating that it needs attention.
+
+* ISR (Interrupt Service Routine): The code executed by the CPU in response to an IRQ, responsible for handling the interrupt request.
+
+In Linux, the kernel typically does not have direct access to packets stored in a device's queue due to security layers that prevent unauthorized access. When a device receives a packet, it is stored in a queue until the driver processes it. The kernel accesses packet information only through the driver layer, which provides interfaces for packet retrieval.
+
+#### Network Association Interrupt
+1. Buffers such as sk_buff need to be allocated.
+2. The received data is copied into these buffers.
+3. Parameters within the buffer are initialized to inform higher-layer protocols about the type of data.
+
+#### Softirq
+**Softirqs** (short for "soft interrupts") are a mechanism in the Linux kernel for deferring the processing of certain tasks from the context of a hardware interrupt handler to a later time when the system is less loaded. This allows the hardware interrupt handler to return quickly, minimizing the time that the CPU is unavailable for other tasks.
+
+- If the interrupt handler needs to perform tasks that are not time-critical or can be safely delayed, it can defer them to softirqs.
+- Softirqs are software interrupts that are executed in a separate task context, typically after the interrupt handler has completed its essential tasks.
+- Deferring tasks to softirqs allows the interrupt handler to return quickly, minimizing the time the CPU is unavailable for other tasks.
 
 ### L2
+#### queue
+> Maintained by kernel
+* Each queue will contain a pointer to the associated device and a pointer to the ingress/egress sk_buff.
+* The loopback device is special as it does not require a queue at all.
+
+#### What Handler(Device Driver) Do?
+1. Copy the frame into the sk_buff structure.
+2. Initialize the sk_buff settings for higher-level handlers.
+    For example, set skb→protocol to specify the upper-layer protocol.
+3. Schedule the NET_RX_SOFTIRQ softirq to notify the kernel of the arrival of a new frame.
+    Also, place the frame in the CPU's private queue (stored in each CPU's separate ```softnet_data```).
+
+#### How to Notify Kernel
+* Old Method: netif_rx
+    * Some device drivers use this method.
+    *  Typically called in an interrupt context, it may temporarily disable CPU interrupts.
+* NAPI (New API)
+    * The main idea is to combine interrupt and polling mechanisms.
+    * New interrupts are not generated if the kernel has not finished processing other packets in the queue.
+    * Reduces CPU loading during high workloads by decreasing the number of interrupts.
+#### Processing Frame (Receive)
+[```netif_receive_skb```](<https://github.com/torvalds/linux/blob/master/net/core/dev.c>)
+
+Each driver is associated with a specific hardware type (e.g., Ethernet), allowing it to interpret the L2 header and identify the L3 protocol.
+
+Main Functions:
+
+1. Pass the frame copy to the protocol demultiplexer.
+2. Forward the frame copy to the L3 handler specified by skb→protocol.
+3. Handle layer-specific functions, such as bridging.
+#### Transmission Enable & Disable:
+
+When a device driver detects that there is insufficient memory to store a Maximum Transmission Unit (MTU), it calls netif_stop_queue to stop the egress queue. This prevents further transmissions, as the kernel knows it will fail and waste resources.This responsibility lies with the driver.
+
+
+#### Scheduling for Transmission:
+
+```dev_queue_xmit``` dequeues a frame using one of two methods:
+
+1. Interface with Traffic Control (QoS layer): Through ```qdisc_run```.
+2. Directly pass the frame to the device’s hard_start_xmit.
+
+[more details of ```dev_queue_xmit```](<https://abcdxyzk.github.io/blog/2015/08/25/kernel-net-dev_queue_xmit/>)
+
+The sole parameter is a structure containing sk_buff:
+
+1. ```skb→dev``` specifies the outgoing device.
+2. ```skb→data``` points to the payload.
+
+When the egress queue is closed, netif_schedule is called to schedule the device:
+
+1. Adds the frame to the head of each CPU’s output queue.
+2. Schedules a softirq.
+
+#### Handling NET_TX_SOFTIRQ: ```net_tx_action```
+1. Handles tasks that can be deferred.
+2. When transmission is complete, dev_kfree_skb_irq is called to notify that the related buffer can be released.
+#### Traffic Control(TC)
 
 ### L3
 
-### L4
 
-### routing subsystem
 
-### Netfilter
