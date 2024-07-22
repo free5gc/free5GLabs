@@ -1,10 +1,15 @@
 # Lab 2: Networking Basics in Linux kernel
 
-## Introduction
-
-
-
 ## Goals of this lab
+
+This document primarily focuses on explaining how the kernel handles various networking behaviors. For practical system implementations, refer to the provided links. The main objective is to understand how the kernel processes network functions and observe how user-space applications interact with the kernel's interfaces to achieve network functionality.
+
+For information on the datapath kernel module [gtp5g](https://ithelp.ithome.com.tw/articles/10302887) in Free5GC, you can refer to the following article:
+
+1. [gtp5g Architecture](<https://free5gc.org/guide/Gtp5g/design/#introduction>)
+2. [gtp5g PCFP Architecture](<https://free5gc.org/guide/Upf_PFCP/design/>)
+3. [Introduction to gtp5g and some kernel concepts ](<https://free5gc.org/blog/20230920/Introduction_of_gtp5g_and_some_kernel_concepts/>)
+4. [gtp5g source code explanation ](<https://ithelp.ithome.com.tw/articles/10302887>)
 
 ## Important Data Struture in Networking Programming
 
