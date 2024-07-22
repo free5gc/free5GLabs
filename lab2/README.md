@@ -8,8 +8,207 @@
 
 ## Important Data Struture in Networking Programming
 
+### sk_buff
+
+> Each packet has its own sk_buff structure.
+
+1. The most frequently allocated and freed structure in the network subsystem.
+2. Allocated by skb_init in net/core/sk_buff.c.
+3. The data structure is defined in <include/linux/skbuff.h>.
+4. This structure is used from L2 to L4, with each layer modifying the fields (adding headers).
+
+#### structure
+
+![alt text](image.png)
+[image reference]( https://www.cnblogs.com/qq78292959/archive/2012/06/06/2538358.html)
+
+A doubly linked list composed of sk_buff_head and sk_buff represents the network stack's packet queues, such as transmit (TX) and receive (RX) queues. Some fields exist merely to simplify searching, and each sk_buff must be able to quickly find the head of this linked list.
+```
+struct sk_buff_head {
+       /* These two members must be first. */
+       struct sk_buff  *next;
+       struct sk_buff  *prev;
+   
+       __u32       qlen; //list 中元素數量
+      spinlock_t  lock; // 防止同時存取
+  };
+```
+The detailed definition of sk_buff is influenced by the kernel's configuration settings at compile time. The fields may vary depending on the features enabled (e.g., enabling QoS functionality). Below are descriptions of common fields.
+
+```
+struct sk_buff {
+    /* These two members must be first. */
+    struct sk_buff          *next;
+    struct sk_buff          *prev;
+
+    struct sock             *sk; // This field is needed for socket-related data at L4. It is null if the host is neither the destination nor the source.
+    struct net_device       *dev;
+
+    char                    cb[48] __aligned(8); // Control buffer
+
+    unsigned long           _skb_refdst;
+    void                    (*destructor)(struct sk_buff *skb);
+#ifdef CONFIG_NET_DMA
+    struct dma_chan         *dma_chan;
+    dma_cookie_t            dma_cookie;
+#endif
+    /* Data */
+    unsigned char           *head; // Points to buffer head
+    unsigned char           *data; // Points to data head
+    unsigned char           *tail; // Points to data end
+    unsigned char           *end;  // Points to buffer end
+    unsigned int            len;   // Changes as this structure exists at different layers. When moving up the layers, headers are discarded.
+    unsigned int            data_len; // Only contains the size of the data
+    unsigned int            mac_len;
+    unsigned short          gso_size;
+    unsigned short          csum_offset;
+
+    __u32                   priority; // Used for QoS
+    __u32                   mark;
+    __u16                   queue_mapping;
+    __u16                   protocol; // Used by the driver to determine which handler at a higher level should process the packet (each protocol has its own handler)
+    __u8                    pkt_type;
+    __u8                    ip_summed;
+    __u8                    ooo_okay;
+    __u8                    nohdr;
+    __u8                    nf_trace;
+    __u8                    ipvs_property;
+    __u8                    peeked;
+    __u8                    nfctinfo;
+    __u8                    napi_id;
+
+    __be32                  secmark;
+
+    union {
+        __wsum              csum;
+        struct {
+            __u16           csum_start;
+            __u16           csum_offset;
+        };
+    };
+
+    __u16                   vlan_proto;
+    __u16                   vlan_tci;
+
+#ifdef CONFIG_NET_CLS_ACT
+    __u32                   tc_index;       /* Traffic control index */
+#endif
+
+#ifdef CONFIG_NET_SCHED
+    __u16                   tc_verd;        /* Traffic control verdict */
+#endif
+
+    __u16                   tstamp;
+    __u16                   hash;
+    __u32                   timestamp;
+
+    struct sk_buff          *frag_list;
+    struct sk_buff          *next_frag;
+
+    skb_frag_t              frags[MAX_SKB_FRAGS];
+    skb_frag_t              frag_list;
+
+    struct ubuf_info        *ubuf_info;
+
+    struct skb_shared_info  *shinfo;
+};
+
+```
+
+
+1. net_device: The role depends on whether the packet is about to be sent or has just been received.
+    1. Receive: The device driver will update this field with a pointer to the data structure representing the receiving interface.
+    2. Transmission is more complex 
+
+    Some network functions can aggregate "some devices" into a single virtual interface, serviced by a virtual driver.
+
+    The virtual driver will select a specific device and then set the dev field to point to this net_device structure. Therefore, this value changes during the packet processing.
+
+2. cb: control buffer
+    1. Each layer has its private information storage here, storing temporary data.
+    2. For example:
+        - IP
+
+            ```c
+            struct ip_skb_cb {
+                __u32    addr;
+                __u32    options;
+                // Other temporary information for the IP layer
+            };
+
+            void ip_process(struct sk_buff *skb) {
+                struct ip_skb_cb *cb = IP_CB(skb);
+                cb->addr = ...;
+                cb->options = ...;
+                // Process the IP packet
+            }
+            ```
+
+        - TCP
+
+            TCP places tcp_skb_cb data in the cb area
+
+            ```c
+            struct tcp_skb_cb {
+                union {
+                    struct {
+                        __u32  seq;       /* TCP sequence number */
+                        __u32  end_seq;   /* TCP end sequence number */
+                        union {
+                            struct {
+                                __u16  flag;       /* TCP flags */
+                                __u16  sacked;     /* SACKed status */
+                            };
+                            __u32  ack_seq;        /* Acknowledgment sequence number */
+                        };
+                    };
+                    __u8  header[48];    /* Align to 48 bytes */
+                };
+                __u32  when;             /* Transmission time */
+                __u32  acked;            /* ACKed status */
+            };
+            ```
+
+            Access using macro
+
+            ```c
+            #define TCP_SKB_CB(__skb)   ((struct tcp_skb_cb *)&((__skb)->cb[0]))
+            ```
+
+            Example
+
+            ```c
+            #include <linux/skbuff.h>
+            #include <net/tcp.h>
+
+            void process_tcp_skb(struct sk_buff *skb) {
+                struct tcp_skb_cb *tcb = TCP_SKB_CB(skb);
+
+                // Set TCP sequence number
+                tcb->seq = 1000;
+                // Set TCP end sequence number
+                tcb->end_seq = 2000;
+                // Set TCP flags
+                tcb->flag = 0x10;  // For example, ACK flag
+
+                // Print TCP sequence number and end sequence number
+                printk(KERN_INFO "TCP seq: %u, end_seq: %u\n", tcb->seq, tcb->end_seq);
+            }
+            ```
+
+3. priority
+    1. Used for QoS
+    2. If the packet is locally generated, the socket layer defines this value.
+    3. If the packet is to be forwarded, this field is defined based on the ToS of the IP header.
+4. cloned
+    1. When an ingress packet needs to be given to multiple receivers, such as protocol handlers, network taps, etc.
+
+### net_device
+
 ## Kernel Space Communitation with User Space
 Network programs require communication between user space and kernel space for several reasons:
+
+
 
 **Access hardware resources**: Network programs often need to access hardware resources like network interface cards and memory. Since these resources are managed by the operating system kernel only, programs must use system calls to request access from kernel space.
 
@@ -237,7 +436,7 @@ setsockopt(4, SOL_SOCKET, SO_RCVBUF, [1048576], 4) = 0
 setsockopt(4, SOL_NETLINK, NETLINK_EXT_ACK, [1], 4) = 0
 getsockname(4, {sa_family=AF_NETLINK, nl_pid=-804631643, nl_groups=00000000}, [12]) = 0
 sendmsg(4, {msg_name={sa_family=AF_NETLINK, nl_pid=0, nl_groups=00000000}, msg_namelen=12, msg_iov=[{iov_base={{len=52, type=RTM_GETLINK, flags=NLM_F_REQUEST, seq=1721550802, pid=0}, {ifi_family=AF_UNSPEC, ifi_type=ARPHRD_NETROM, ifi_index=0, ifi_flags=0, ifi_change=0}, [{{nla_len=8, nla_type=IFLA_EXT_MASK}, 9}, {{nla_len=11, nla_type=IFLA_IFNAME}, "enp0s8"}]}, iov_len=52}], msg_iovlen=1, msg_controllen=0, msg_flags=0}, 0) = 52
-recvmsg(4, {msg_name={sa_family=AF_NETLINK, nl_pid=0,}}
+recvmsg(4, {msg_name={sa_family=AF_NETLINK, nl_pid=0,}})
 .
 .
 .
