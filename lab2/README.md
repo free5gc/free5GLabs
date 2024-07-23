@@ -318,15 +318,44 @@ The ip command is a versatile tool for managing network interfaces, routing tabl
 
 Here are some of the common functions of ip command.
 
-* ip link: Manages network interfaces, including creating, configuring, and displaying their status.
+* ```ip link```: Manages network interfaces, including creating, configuring, and displaying their status.
 
-* ip addr: Manages IP addresses, assigning, deleting, and displaying addresses for network interfaces.
+* ```ip addr```: Manages IP addresses, assigning, deleting, and displaying addresses for network interfaces.
 
-* ip route: Manages routing tables, adding, deleting, and modifying routes to direct network traffic.
+* ```ip route```: Manages routing tables, adding, deleting, and modifying routes to direct network traffic.
 
-* ip neigh: Manages neighbor cache entries, displaying and manipulating ARP and NDISC entries for connected devices.
+* ```ip neigh```: Manages neighbor cache entries, displaying and manipulating ARP and NDISC entries for connected devices.
 
-* ip rule:
+* ```ip rule```: defines routing policies (which routing table to use) while ip route specifies routing entries (how to forward packets).The route command is restricted to operating on a single routing table, while policy-based routing (PBR) employs multiple routing tables concurrently
+    * The differences between ```ip route``` & ```ip rule```
+
+        ip **route** show: 
+        ```
+        $ ip route
+        default via 10.0.2.2 dev enp0s3 proto dhcp src 10.0.2.15 metric 100 
+        10.0.2.0/24 dev enp0s3 proto kernel scope link src 10.0.2.15 
+        10.0.2.2 dev enp0s3 proto dhcp scope link src 10.0.2.15 metric 100 
+        192.168.55.0/24 dev enp0s8 scope link 
+        192.168.56.0/24 dev enp0s8 proto kernel scope link src 192.168.56.202
+        ```
+
+        ip **rule** show:
+        ```
+        $ ip rule 
+        0:      from all lookup local
+        32766:  from all lookup main
+        32767:  from all lookup default
+
+        $ ip route show table main
+        default via 10.0.2.2 dev enp0s3 proto dhcp src 10.0.2.15 metric 100 
+        10.0.2.0/24 dev enp0s3 proto kernel scope link src 10.0.2.15 
+        10.0.2.2 dev enp0s3 proto dhcp scope link src 10.0.2.15 metric 100 
+        192.168.55.0/24 dev enp0s8 scope link 
+        192.168.56.0/24 dev enp0s8 proto kernel scope link src 192.168.56.202        
+        ```
+
+
+
 
 Next, We use strace to observe how the ip command uses system calls.
 
