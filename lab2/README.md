@@ -326,6 +326,8 @@ Here are some of the common functions of ip command.
 
 * ip neigh: Manages neighbor cache entries, displaying and manipulating ARP and NDISC entries for connected devices.
 
+* ip rule:
+
 Next, We use strace to observe how the ip command uses system calls.
 
 The kernel maintains various data structures to store information about network interfaces, their state, and associated resources:
