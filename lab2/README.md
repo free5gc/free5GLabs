@@ -541,6 +541,15 @@ In Linux, the kernel typically does not have direct access to packets stored in 
 - If the interrupt handler needs to perform tasks that are not time-critical or can be safely delayed, it can defer them to softirqs.
 - Softirqs are software interrupts that are executed in a separate task context, typically after the interrupt handler has completed its essential tasks.
 - Deferring tasks to softirqs allows the interrupt handler to return quickly, minimizing the time the CPU is unavailable for other tasks.
+- ksoftirqd is a kernel thread operates on a per-CPU basis, meaning that each CPU has its own dedicated ksoftirqd thread. This allows for parallel processing of soft interrupts, further enhancing the system's responsiveness and ability to handle concurrent workloads.
+    - We can observe the ksoftirqd by using px aux | grep soft
+        ```
+        ps aux | grep soft
+        root           9  0.0  0.0      0     0 ?        S    Jul17   0:03 [ksoftirqd/0]
+        root          18  0.0  0.0      0     0 ?        S    Jul17   0:04 [ksoftirqd/1]
+        root          24  0.0  0.0      0     0 ?        S    Jul17   0:01 [ksoftirqd/2]
+        root          30  0.0  0.0      0     0 ?        S    Jul17   0:06 [ksoftirqd/3]
+        ```
 
 ### L2
 #### queue
