@@ -4,7 +4,7 @@
 
 This document primarily focuses on explaining how the kernel handles various networking behaviors. For practical system implementations, refer to the provided links. The main objective is to understand how the kernel processes network functions and observe how user-space applications interact with the kernel's interfaces to achieve network functionality.
 
-For information on the datapath kernel module [gtp5g](https://ithelp.ithome.com.tw/articles/10302887) in Free5GC, you can refer to the following article:
+For information on the datapath kernel module [gtp5g](https://ithelp.ithome.com.tw/articles/10302887) in free5GC, you can refer to the following article:
 
 1. [gtp5g Architecture](<https://free5gc.org/guide/Gtp5g/design/#introduction>)
 2. [gtp5g PCFP Architecture](<https://free5gc.org/guide/Upf_PFCP/design/>)
@@ -24,8 +24,29 @@ For information on the datapath kernel module [gtp5g](https://ithelp.ithome.com.
 
 #### structure
 
-![alt text](image.png)
-[image reference]( https://www.cnblogs.com/qq78292959/archive/2012/06/06/2538358.html)
+```
+                                ---------------
+                               | sk_buff       |
+                                ---------------
+   ,---------------------------  + head
+  /          ,-----------------  + data
+ /          /      ,-----------  + tail
+|          |      |            , + end
+|          |      |           |
+v          v      v           v
+ -----------------------------------------------
+| headroom | data |  tailroom | skb_shared_info |
+ -----------------------------------------------
+                               + [page frag]
+                               + [page frag]
+                               + [page frag]
+                               + [page frag]       ---------
+                               + frag_list    --> | sk_buff |
+                                                   ---------
+
+```
+
+[Ref]( https://docs.kernel.org/networking/skbuff.html)
 
 A doubly linked list composed of sk_buff_head and sk_buff represents the network stack's packet queues, such as transmit (TX) and receive (RX) queues. Some fields exist merely to simplify searching, and each sk_buff must be able to quickly find the head of this linked list.
 ```
@@ -224,7 +245,7 @@ Network programs require communication between user space and kernel space for s
 #### sysctl
 Sysctl is a mechanism in Unix-like operating systems that allows user space programs to read and modify kernel parameters. These parameters, also known as "kernel variables," control various aspects of the kernel's behavior, such as networking, memory management, and process scheduling.
 
-For instance, during the installation of free5gc, the command ```sudo sysctl -w net.ipv4.ip_forward=1``` is used to enable routing functionality on the host machine. These variables are stored in a pseudo-filesystem ,```proc/sys``` . The ip_forward variable is stored in ```/proc/sys/net/ipv4/ip_forward```
+For instance, during the installation of free5GC, the command ```sudo sysctl -w net.ipv4.ip_forward=1``` is used to enable routing functionality on the host machine. These variables are stored in a pseudo-filesystem ,```proc/sys``` . The ip_forward variable is stored in ```/proc/sys/net/ipv4/ip_forward```
 
 
 
@@ -290,7 +311,7 @@ A message can contain a second header defining the type of netlink message; the 
 
 [A comparison between ioctl & Netlink](<https://medium.com/thg-tech-blog/on-linux-netlink-d7af1987f89d>)
 
-[Netlink in free5gc dataplane](<https://free5gc.org/blog/20230920/Introduction_of_gtp5g_and_some_kernel_concepts/#free5gc-upf>)
+[Netlink in free5GC dataplane](<https://free5gc.org/blog/20230920/Introduction_of_gtp5g_and_some_kernel_concepts/#free5gc-upf>)
 
 ## ip Command Introduction
 The ip command is a versatile tool for managing network interfaces, routing tables, and other networking configurations in Linux systems. 
@@ -496,7 +517,7 @@ In Linux, the kernel typically does not have direct access to packets stored in 
 * Each queue will contain a pointer to the associated device and a pointer to the ingress/egress sk_buff.
 * The loopback device is special as it does not require a queue at all.
 
-#### What Handler(Device Driver) Do?
+#### What Handler (Device Driver) Do?
 1. Copy the frame into the sk_buff structure.
 2. Initialize the sk_buff settings for higher-level handlers.
     For example, set skb→protocol to specify the upper-layer protocol.
@@ -506,8 +527,8 @@ In Linux, the kernel typically does not have direct access to packets stored in 
 #### How to Notify Kernel
 * Old Method: netif_rx
     * Some device drivers use this method.
-    *  Typically called in an interrupt context, it may temporarily disable CPU interrupts.
-* NAPI (New API)
+    * Typically called in an interrupt context, it may temporarily disable CPU interrupts.
+* [NAPI (New API)](https://docs.kernel.org/networking/napi.html) 
     * The main idea is to combine interrupt and polling mechanisms.
     * New interrupts are not generated if the kernel has not finished processing other packets in the queue.
     * Reduces CPU loading during high workloads by decreasing the number of interrupts.
