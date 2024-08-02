@@ -156,11 +156,56 @@ You can observe from the 'Info' field what setup procedures the UE performed wit
 ![wspackets](./images/wireshark_packets.png)
 
 #### Explanation  
-- NGSetupRequest & NGSetupResponse : After the gNB is initialized, it communicates with the AMF to perform NGAP protocol setup.
-- 
+- NGSetupRequest & NGSetupResponse : The purpose of the NG Setup procedure is to exchange application level data needed for the NG-RAN node and the AMF to correctly interoperate on the NG-C interface. This procedure shall be the first NGAP procedure triggered after the TNL association has become operational. The procedure uses non-UE associated signalling. 
 
+- InitialUEMessage (Registration request) : The Initial UE Message procedure is used when the NG-RAN node has received from the radio interface the first uplink NAS message transmitted on an RRC connection to be forwarded to an AMF.
+
+- DownlinkNASTransport : The Downlink NAS Transport procedure is used when the AMF only needs to send a NAS message transparently via the NG-RAN node to the UE, and a UE-associated logical NG-connection exists for the UE or the AMF has received the RAN UE NGAP ID IE in an INITIAL UE MESSAGE message either over this NG interface instance or another NG interface instance.
+
+- UplinkNASTransport : The Uplink NAS Transport procedure is used when the NG-RAN node has received from the radio interface a NAS message to be forwarded to the AMF to which a UE-associated logical NG-connection for the UE exists.
+
+- InitialContextSetup : The purpose of the Initial Context Setup procedure is to establish the necessary overall initial UE Context at the NGRAN node, when required, including PDU session context, the Security Key, Mobility Restriction List, UE Radio Capability and UE Security Capabilities, etc. The AMF may initiate the Initial Context Setup procedure if a UEassociated logical NG-connection exists for the UE or if the AMF has received the RAN UE NGAP ID IE in an INITIAL UE MESSAGE message either over this NG interface instance or another NG interface instance, The procedure uses UE-associated signalling.
+
+- PDUSessionResourceSetup : The purpose of the PDU Session Resource Setup procedure is to assign resources on Uu and NG-U for one or several PDU session resources and the corresponding QoS flows, and to setup corresponding Data Radio Bearers for a given UE. The procedure uses UE-associated signalling.
+
+- PDUSessionResourceRelease : The purpose of the PDU Session Resource Release procedure is to enable the release of already established PDU session resources for a given UE. The procedure uses UE-associated signalling.
+
+- UEContextRelease : The purpose of the UE Context Release Request procedure is to enable the NG-RAN node to request the AMF to
+release the UE-associated logical NG-connection due to NG-RAN node generated reasons. The procedure uses UEassociated signalling.
+
+#### Protocol Stack & Packet Structure & Information Element (IE)
+> Example : InitialUEMessage (Registration Request)
+ 
+The protocol stack in this packet is :
+
+- SCTP
+- NGAP  
+
+![correspond_layer](./images/osi.png)
+
+Packet decapsulate :  
+
+![ipv4_disassembly](./images/ipv4_decapsulate.png)
+- TTL : The maximum distance a packet can be transmitted when passing through a router
+
+![sctp_disassembly](./images/sctp_disassembly.png)
+- Verification tag : The verification tag in SCTP is used to ensure that the packet belongs to a specific SCTP session.
+- Paylad protocol identifier (PPID) : The payload of this data chunk contains NGAP (Next Generation Application Protocol) protocol data.  
+
+![ngap_disassembly](./images/ngap_disassembly.png)
+![ngap_items1](./images/ngap_items1.png)
 
 ### <u>Step 3 : (N3 observation)</u> 
+> The N3 interface is responsible for transmitting user data (such as internet traffic, voice, video, etc.), and it typically uses GTP-U (GPRS Tunneling Protocol - User Plane) for encapsulation and transmission.  
+In **Step 6** of capturing packets, we send ICMP packets to the Data Network, which will be observed here.
+
+#### Enter filtering conditions
+
+![wsfiltercondition2](./images/wireshark_filter2.png)
+
+#### Protocol Stack
+
+![icmp_disassembly](./images/icmp_disassembly.png)
 
 
 ## Exercise: PFCP protocol stack observation on N4
@@ -170,3 +215,5 @@ In this exercise,
 
 
 ## Reference
+- [3GPP TS 38.413](https://www.etsi.org/deliver/etsi_ts/138400_138499/138413/15.00.00_60/ts_138413v150000p.pdf)
+- [Promiscuous-mode](https://tigercosmos.xyz/post/2023/05/system/promiscuous-mode/)

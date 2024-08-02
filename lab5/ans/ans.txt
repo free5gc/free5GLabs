@@ -1,0 +1,13 @@
+Part 1 : Message Sequence
+PFCP Association Setup Request
+PFCP Association Setup Response
+PFCP Session Establishment Request
+PFCP Session Establishment Response
+PFCP Session Modification Request
+PFCP Session Modification Response
+PFCP Session Deletion Request
+PFCP Session Deletion Response
+
+Part 2 : Protocol Stack
+UDP
+PFCP
