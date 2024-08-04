@@ -5,6 +5,8 @@ PFCP Session Establishment Request
 PFCP Session Establishment Response
 PFCP Session Modification Request
 PFCP Session Modification Response
+PFCP Session Report Request
+PFCP Session Report Response
 PFCP Session Deletion Request
 PFCP Session Deletion Response
 

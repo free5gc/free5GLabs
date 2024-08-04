@@ -155,7 +155,7 @@ You can observe from the 'Info' field what setup procedures the UE performed wit
 
 ![wspackets](./images/wireshark_packets.png)
 
-#### Explanation  
+#### Message Type Explanation  
 - NGSetupRequest & NGSetupResponse : The purpose of the NG Setup procedure is to exchange application level data needed for the NG-RAN node and the AMF to correctly interoperate on the NG-C interface. This procedure shall be the first NGAP procedure triggered after the TNL association has become operational. The procedure uses non-UE associated signalling. 
 
 - InitialUEMessage (Registration request) : The Initial UE Message procedure is used when the NG-RAN node has received from the radio interface the first uplink NAS message transmitted on an RRC connection to be forwarded to an AMF.
@@ -208,11 +208,61 @@ In **Step 6** of capturing packets, we send ICMP packets to the Data Network, wh
 ![icmp_disassembly](./images/icmp_disassembly.png)
 
 
-## Exercise: PFCP protocol stack observation on N4
+## Exercise: PFCP Message Type and Protocol Stack Observation on N4
+
+In this exercise, you need to follow the steps below to capture PFCP packets on the N4 interface, write down the Message Type of each packet in order, and describe the Protocol Stack of the PFCP packet.
+
 - N4: controls user plane configuration and session management between the `SMF` and `UPF`
 
-In this exercise, 
+### <u>Step 1 : </u>
+#### Check the network configuration on N4.
+```
+vim ~/free5gc/config/smfcfg.yaml
+```
+![pfcpConfig](./images/pfcpConfig.png)
 
+#### Also, check the corresponding network interface Name.
+![N4interface](./images/N4interface.png)
+
+### <u>Step 2 : </u>
+#### Start capturing packets and save to N4.pcap (On free5GC)
+```
+$ tcpdump -i lo -w N4.pcap
+```
+
+### <u>Step 3 : </u>
+#### Run free5GC (On free5GC)
+```
+$ cd free5gc
+$ ./run.sh
+```
+
+### <u>Step 4 : </u>
+#### Start the UE connection (On PacketRusher)
+```
+$ cd PacketRusher
+$ ./packetrusher ue
+```
+
+### <u>Step 5 : </u>
+#### After Connected.
+- Shutdown UE.
+- Shutdown free5GC.
+
+### <u>Step 6 : </u>
+#### Stop tcpdump, and you can get the PCAP file.
+
+### <u>Step 7 : </u>
+#### Open N4.pcap on Wireshark application
+
+### <u>Step 8 : </u>
+#### Enter filtering conditions
+![wsfiltercondition3](./images/wireshark_filter3.png)
+
+### Question
+> Observe the captured PFCP packets and answer the following questions.
+#### Part 1 : Write down the Message Type of each packet in order
+#### Part 2 : Describe the Protocol Stack of the PFCP packet
 
 ## Reference
 - [3GPP TS 38.413](https://www.etsi.org/deliver/etsi_ts/138400_138499/138413/15.00.00_60/ts_138413v150000p.pdf)
