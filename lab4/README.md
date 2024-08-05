@@ -29,7 +29,7 @@ Representational means that the client and server communicate using data represe
 
 ### HTTP Protocol
 
-How to build a RESTful API? The most common way to build a RESTful API is to use HTTP protocol. 
+How to build a RESTful API? The most common way to build a RESTful API is to use HTTP protocol.
 
 HTTP is a protocol that is used to transfer data over the internet, such as web pages, files. Most importantly, HTTP is stateless. This means that the client and server do not need to maintain any state between the requests.
 
@@ -68,7 +68,91 @@ Status codes are used to indicate the status of a response. The most commonly us
 
 For more status codes, please refer to IETF RFC 9110.
 
-*One more thing, although HTTP status codes are defined in the standard, there are servers which will only return 200, 400 and 500 for security reasons. If you are interested, I recommend you to read [this article](https://www.outsystems.com/blog/posts/implementing-http-status-code-exposing-rest/).*
+*One more thing, although HTTP status codes are defined in the standard, there are servers which will only return 200, 400 and 500 for security reasons. If you are interested, we recommend you to read [this article](https://www.outsystems.com/blog/posts/implementing-http-status-code-exposing-rest/).*
+
+## Exercise: Create a simple CRUD RESTful API and test it
+
+We hope you have learned some basics of RESTful APIs. In this exercise, we will create a simple RESTful API that allows users to create, read, update and delete a task in a todo-list system.
+
+### Writing the API
+
+We use [Gin](https://gin-gonic.com/) for this exercise. It is a popular web framework writtne in Go. It provides a easy-to-use declarative API for building RESTful APIs.
+
+First, we need to create a gin engine instance.
+
+```go
+import "github.com/gin-gonic/gin"
+
+func main() {
+    /* Create a gin engine instance */
+    engine := gin.Default()
+}
+```
+
+Then, we can create a endpoint that create a new task.
+
+```go
+import (
+    // ...
+
+    /* New imports */
+    "net/http"
+)
+
+func TodoTaskCreate(c *gin.Context) {
+    name := c.Query("name")
+    // validation...
+
+    globalApp.CreateTask(name)
+    c.JSON(http.StatusCreated, newTask)
+}
+
+func main() {
+    // ...
+
+    engine.POST("/tasks", TodoTaskCreate)
+}
+```
+
+The `gin.Context.Query(string)` method is used to get the value of a query parameter. A query parameter is a key-value pair data.
+
+The `gin.Context.JSON()` method is used to create a response with a JSON body. The `http.StatusCreated` is a constant provided by the `net/http` package, which means that the resource is created successfully. We encourage you to use the constants provided by the `net/http` package, which is more readable than using the hard-coded numbers.
+
+We are able to create a new task now. Let's get the task by its ID.
+
+```go
+func TodoTaskGetOne(c *gin.Context) {
+    id := c.Params.ByName("id")
+    // validation...
+
+    idInt, err := strconv.Atoi(id)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Id must be an integer"})
+        return
+    }
+
+    task := globalApp.GetTaskOne(idInt)
+    c.JSON(http.StatusOK, task)
+}
+
+func main() {
+    engine.GET("/tasks/:id", TodoTaskGetOne)
+}
+```
+
+The `:id` is a path parameter. It is used to identify the resource.
+
+We have demonstrated two API endpoints. Please implement the others. You can find the code in the [excersise](excersise) folder. An example of the answer is in the [answers](answers) folder.
+
+To run the server,
+
+```bash
+go run todo.go
+
+// Ctrl-C to stop the server
+```
+
+### Testing the API
 
 ## References
 
