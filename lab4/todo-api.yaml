@@ -152,6 +152,12 @@ paths:
       responses:
         "204":
           description: Succeeded to delete the task
+        "404":
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
 
 components:
   schemas:
