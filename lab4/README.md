@@ -72,7 +72,16 @@ For more status codes, please refer to IETF RFC 9110.
 
 ## Exercise: Create a simple CRUD RESTful API and test it
 
-We hope you have learned some basics of RESTful APIs. In this exercise, we will create a simple RESTful API that allows users to create, read, update and delete a task in a todo-list system.
+We hope you have learned some basics of RESTful APIs. In this exercise, we will create a simple RESTful API that allows users to create, read, update and delete a task in a todo-list system. The API spec is written in [OpenAPI](https://www.openapis.org/) format.
+
+### What is OpenAPI?
+
+> The OpenAPI Specifications provides a formal standard for describing HTTP APIs.
+--- **[OpenAPI](https://www.openapis.org/)**
+
+It is like a documentation of your API that guides user to use it. The OpenAPI format is written in JSON or YAML that is easy for machines to parse. There are tools that can convert the OpenAPI spec into a human-readable pages or even a code generator. For example, the [Swagger Editor](https://editor.swagger.io/) can be used to edit and visualize the API spec. It can also help you to test the API.
+
+We provides a [todo-list API spec](todo-api.yaml) that helps you to implement and test. Please follow the spec to implement the API. You can paste the spec into the [Swagger Editor](https://editor.swagger.io/) to visualize it. We will show you how to use the editor to test the API later.
 
 ### Writing the API
 
@@ -100,7 +109,11 @@ import (
 )
 
 func TodoTaskCreate(c *gin.Context) {
-    name := c.Query("name")
+    type RequestBody struct {
+        Name string `json:"name"`
+    }
+    var body RequestBody
+    err := c.ShouldBindBodyWithJSON(&body)
     // validation...
 
     globalApp.CreateTask(name)
@@ -114,7 +127,7 @@ func main() {
 }
 ```
 
-The `gin.Context.Query(string)` method is used to get the value of a query parameter. A query parameter is a key-value pair data.
+The `gin.Context.ShouldBindBodyWithJSON()` method is used to parse the request body. The `RequestBody` is a struct that contains the `name` field. The `json:"name"` tag is used to specify the name of the field in the request body.
 
 The `gin.Context.JSON()` method is used to create a response with a JSON body. The `http.StatusCreated` is a constant provided by the `net/http` package, which means that the resource is created successfully. We encourage you to use the constants provided by the `net/http` package, which is more readable than using the hard-coded numbers.
 
@@ -136,6 +149,8 @@ func TodoTaskGetOne(c *gin.Context) {
 }
 
 func main() {
+    // ...
+
     engine.GET("/tasks/:id", TodoTaskGetOne)
 }
 ```
@@ -154,6 +169,24 @@ go run todo.go
 
 ### Testing the API
 
+To test the API, we can use the [Swagger Editor](https://editor.swagger.io/). Please paste the [todo-list API spec](todo-api.yaml) into the editor.
+
+You can specify the URL of your deployed API in the `servers` section in the API spec. Then, expand the `POST /tasks` block and click the **Try it out** button. 
+
+![Try It Out](images/try-it-out.png)
+
+Fill the request body and click the **Execute** button. 
+
+![Try It Out Execute](images/try-it-out-execute.png)
+
+The browser will send a request to your API and display the response. 
+
+![Try It Out Response](images/try-it-out-response.png)
+
+You can find the log of requests in your terminal.
+
+![Try It Out Log](images/try-it-out-log.png)
+
 ## References
 
 1. [https://www.youtube.com/watch?v=l6-za59eMKQ](https://www.youtube.com/watch?v=l6-za59eMKQ)
@@ -163,3 +196,6 @@ go run todo.go
 5. [https://mtache.com/rest-api](https://mtache.com/rest-api)
 6. [https://developer.mozilla.org/en-US/docs/Learn/Common_questions/Web_mechanics/What_is_a_URL](https://developer.mozilla.org/en-US/docs/Learn/Common_questions/Web_mechanics/What_is_a_URL)
 7. [https://www.outsystems.com/blog/posts/implementing-http-status-code-exposing-rest/](https://www.outsystems.com/blog/posts/implementing-http-status-code-exposing-rest/)
+8. [https://gin-gonic.com/](https://gin-gonic.com/)
+9. [https://www.openapis.org/](https://www.openapis.org/)
+10. [https://editor.swagger.io/](https://editor.swagger.io/)
