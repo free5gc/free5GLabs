@@ -5,7 +5,7 @@ This document helps the lab newbies (or anyone who interested in 5G Core) to und
 
 - Lab 0: [Network Programming with Go](./lab0/README.md)
 - Lab 1: [Concurrent Programming in Go](./lab1/README.md)
-- Lab 2: Networking Basics in Linux kernel
+- Lab 2: [Networking Basics in Linux kernel](./lab2/README.md)
 - Lab 3: [Deploying free5GC](./lab3/README.md)
 - Lab 4: Service-Based Architecture (HTTP protocol)
 - Lab 5: [5G protocol stack observation (tcpdump)](./lab5/README.md)
