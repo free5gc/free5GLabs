@@ -229,7 +229,6 @@ struct sk_buff {
 4. cloned
     1. When an ingress packet needs to be given to multiple receivers, such as protocol handlers, network taps, etc.
 
-### net_device
 
 ## Kernel Space Communitation with User Space
 Network programs require communication between user space and kernel space for several reasons:
@@ -609,7 +608,6 @@ When the egress queue is closed, netif_schedule is called to schedule the device
 #### Handling NET_TX_SOFTIRQ: ```net_tx_action```
 1. Handles tasks that can be deferred.
 2. When transmission is complete, dev_kfree_skb_irq is called to notify that the related buffer can be released.
-#### Traffic Control(TC)
 
 ### L3
 
@@ -706,4 +704,15 @@ There are only two functions:
 4. Sends to the outgoing device.
 
 ```ip_forward_finish```: At this point, all checks are completed, and the packet is ready to be sent to another system.
+
+## Qeustion
+
+1. What is sk_buff? Please describe in detail the information it stores, its purpose, and the layers that use it.
+2. What is Netlink in the context of Linux networking? Describe its purpose, the typical flow of a Netlink communication, the Netlink message format, and how it compares to ioctl.
+3. Please explain the main functions of the ip command in Linux network management and through which system calls it accomplishes its tasks.
+4. Explain the process of handling network-related interrupts in Linux, including the roles of the device, driver, CPU, and kernel. Additionally, describe what a softirq is and its significance in this context.
+5. Describe the process of handling Layer 2 (L2) frames in Linux, including queue management, kernel notification, and frame processing and transmission.
+6. Explain the processing of Layer 3 (L3) IP packets in Linux, including initialization, interaction with Netfilter, and packet forwarding.
+
+
 
