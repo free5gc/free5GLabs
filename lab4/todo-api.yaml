@@ -1,0 +1,206 @@
+openapi: 3.0.3
+info:
+  title: Todo API
+  description: |
+    This is a simple Todo API.
+    You can do CRUD operations on tasks.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: tasks
+    description: CRUD operations on tasks
+paths:
+  /tasks:
+    get:
+      tags:
+        - tasks
+      summary: Get all tasks
+      operationId: getAllTasks
+      responses:
+        "200":
+          description: Succeeded to get all tasks
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tasks"
+        "500":
+          description: Failed to get all tasks
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+
+    post:
+      tags:
+        - tasks
+      summary: Create a task
+      operationId: createTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTaskRequest"
+      responses:
+        "201":
+          description: Succeeded to create a task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "400":
+          description: Input Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "500":
+          description: Failed to create a task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+
+  /tasks/{id}:
+    get:
+      tags:
+        - tasks
+      summary: Get a task by id
+      operationId: getTaskById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the task
+          schema:
+            $ref: "#/components/schemas/TaskId"
+      responses:
+        "200":
+          description: Succeeded to get the task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "404":
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "500":
+          description: Failed to get the task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+
+    put:
+      tags:
+        - tasks
+      summary: Update a task by id
+      operationId: updateTaskById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the task
+          schema:
+            $ref: "#/components/schemas/TaskId"
+      requestBody:
+        required: true
+        schema:
+          $ref: "#/components/schemas/UpdateTaskRequest"
+      responses:
+        "200":
+          description: Succeeded to update the task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "400":
+          description: Input Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "404":
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "500":
+          description: Failed to update the task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+
+    delete:
+      tags:
+        - tasks
+      summary: Delete a task by id
+      operationId: deleteTaskById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the task
+          schema:
+            $ref: "#/components/schemas/TaskId"
+      responses:
+        "204":
+          description: Succeeded to delete the task
+        "404":
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+
+components:
+  schemas:
+    TaskId:
+      type: integer
+      format: int64
+
+    Task:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/TaskId"
+        name:
+          type: string
+        completed:
+          type: boolean
+
+    Tasks:
+      type: array
+      items:
+        $ref: "#/components/schemas/Task"
+
+    CreateTaskRequest:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - title
+
+    UpdateTaskRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        completed:
+          type: boolean
+      required:
+        - title
+        - completed
+
+    ErrorMessage:
+      type: object
+      properties:
+        error:
+          type: string
