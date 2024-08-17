@@ -10,10 +10,10 @@ import (
 
 func TestTcpFunction(t *testing.T) {
 	// Type Assertion
-	var _ listenerInterface = TcpListener
-	var _ handlerInterface = TcpHandler
+	var _ listenerInterface = TCPListener
+	var _ handlerInterface = TCPHandler
 
-	go TcpListener("127.0.0.1", 8080, TcpHandler)
+	go TCPListener("127.0.0.1", 8080, TCPHandler)
 
 	time.Sleep(5 * time.Second)
 
@@ -38,7 +38,6 @@ func TestTcpFunction(t *testing.T) {
 
 			connectionSlice = append(connectionSlice, conn)
 		}()
-
 	}
 
 	for _, conn := range connectionSlice {

@@ -94,15 +94,15 @@ go test -v -race -timeout 30s ./...
 2024/06/14 10:18:04 Handle Request from [127.0.0.1:43510]
 --- PASS: TestTcpFunction (5.03s)
 PASS
-2024/06/14 10:18:04 Client [127.0.0.1:43502[] Error: EOF
-2024/06/14 10:18:04 Client [127.0.0.1:43494[] Error: EOF
-2024/06/14 10:18:04 Client [127.0.0.1:43480[] Error: EOF
-2024/06/14 10:18:04 Client [127.0.0.1:43468[] Error: EOF
-2024/06/14 10:18:04 Client [127.0.0.1:43460[] Error: EOF
-2024/06/14 10:18:04 Client [127.0.0.1:43510[] Error: EOF
-2024/06/14 10:18:04 Client [127.0.0.1:43428[] Error: EOF
-2024/06/14 10:18:04 Client [127.0.0.1:43440[] Error: EOF
-2024/06/14 10:18:04 Client [127.0.0.1:43446[] Error: EOF
-2024/06/14 10:18:04 Client [127.0.0.1:43456[] Error: EOF
+2024/06/14 10:18:04 Client [127.0.0.1:43502] Error: EOF
+2024/06/14 10:18:04 Client [127.0.0.1:43494] Error: EOF
+2024/06/14 10:18:04 Client [127.0.0.1:43480] Error: EOF
+2024/06/14 10:18:04 Client [127.0.0.1:43468] Error: EOF
+2024/06/14 10:18:04 Client [127.0.0.1:43460] Error: EOF
+2024/06/14 10:18:04 Client [127.0.0.1:43510] Error: EOF
+2024/06/14 10:18:04 Client [127.0.0.1:43428] Error: EOF
+2024/06/14 10:18:04 Client [127.0.0.1:43440] Error: EOF
+2024/06/14 10:18:04 Client [127.0.0.1:43446] Error: EOF
+2024/06/14 10:18:04 Client [127.0.0.1:43456] Error: EOF
 ok      github.com/ianchen0119/free5GLab/lab0   6.050s
 ```

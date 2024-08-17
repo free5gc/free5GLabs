@@ -11,7 +11,7 @@ type listenerInterface func(string, int, handlerInterface)
 
 type handlerInterface func(conn net.Conn)
 
-func TcpListener(host string, port int, handler handlerInterface) {
+func TCPListener(host string, port int, handler handlerInterface) {
 	server, err := net.Listen("tcp", fmt.Sprintf("%s:%d", host, port))
 	if err != nil {
 		log.Fatalf("Server can't listening on port %d: %v", port, err)
@@ -31,7 +31,7 @@ func TcpListener(host string, port int, handler handlerInterface) {
 	}
 }
 
-func TcpHandler(conn net.Conn) {
+func TCPHandler(conn net.Conn) {
 	defer conn.Close()
 	clientAddr := conn.RemoteAddr().String()
 	log.Printf("Handle Request from [%s]", clientAddr)
@@ -39,7 +39,7 @@ func TcpHandler(conn net.Conn) {
 	for {
 		data, err := bufio.NewReader(conn).ReadString('\n')
 		if err != nil {
-			log.Printf("Client [%s[] Error: %v", clientAddr, err)
+			log.Printf("Client [%s] Error: %v", clientAddr, err)
 			return
 		}
 		_, err = conn.Write([]byte(data))
