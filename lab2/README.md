@@ -70,7 +70,7 @@ struct sk_buff {
     struct sock             *sk; // This field is needed for socket-related data at L4. It is null if the host is neither the destination nor the source.
     struct net_device       *dev;
 
-    char                    cb[48] __aligned(8); // Control buffer
+    char                    cb[48] __aligned(8); // Control block
 
     unsigned long           _skb_refdst;
     void                    (*destructor)(struct sk_buff *skb);
@@ -150,7 +150,7 @@ struct sk_buff {
 
     The virtual driver will select a specific device and then set the dev field to point to this net_device structure. Therefore, this value changes during the packet processing.
 
-2. cb: control buffer
+2. cb: control block
     1. Each layer has its private information storage here, storing temporary data.
     2. For example:
         - IP
