@@ -10,7 +10,7 @@ sk_buff stores a wealth of information that covers various aspects of a network 
     1. next: Pointer to the next buffer in the list.
     2. prev: Pointer to the previous buffer in the list.
     3. dev: Pointer to the network device.
-    4. cb[48]: Control buffer, used for various control information.
+    4. cb[48]: Control block, used for various control information.
     _skb_refdst: Reference to the destination entry.
     destructor: Pointer to the function that will be called when the buffer is destroyed.
     5. head: Pointer to the start of the buffer.
