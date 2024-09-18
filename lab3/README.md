@@ -16,6 +16,8 @@ In Lab3, you will learn how to deploy free5GC with docker and set up interface n
 
 - Install Docker Engine and Docker Compose: refer [Docker Website](https://docs.docker.com/engine/install/ubuntu/) to install
 
+- Install `bridge-utils` package for `brctl` command.
+
 ## Listening Address
 
 Listening Address is the IP address and port used by a server to listen for connections from clients. These addresses and ports are used to accept requests from clients. ex: 192.168.100.101:12345
