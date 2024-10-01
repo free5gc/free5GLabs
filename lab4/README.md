@@ -18,6 +18,8 @@ To speed up the development of the network function, the 3GPP has specified a se
 
 ![Service-Based Interface (SBI)](images/sbi.png)
 
+> Recommended article: [What is the 5G Service-Based Architecture (SBA)?](https://techcommunity.microsoft.com/t5/azure-for-operators-blog/what-is-the-5g-service-based-architecture-sba/ba-p/3831367)
+
 ## RESTful API
 
 We have mentioned that SBA should be designed as RESTful APIs, but what is RESTful API?
