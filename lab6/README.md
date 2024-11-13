@@ -19,7 +19,7 @@ This lab does not contain any information about Git!
 
 ## What is Git/GitHub?
 
-> **ChatGTP**
+> **ChatGPT**
 >
 > < What is Git? >
 >
