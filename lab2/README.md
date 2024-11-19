@@ -49,7 +49,7 @@ v          v      v           v
 [Ref]( https://docs.kernel.org/networking/skbuff.html)
 
 A doubly linked list composed of sk_buff_head and sk_buff represents the network stack's packet queues, such as transmit (TX) and receive (RX) queues. Some fields exist merely to simplify searching, and each sk_buff must be able to quickly find the head of this linked list.
-```
+```c
 struct sk_buff_head {
        /* These two members must be first. */
        struct sk_buff  *next;
@@ -61,7 +61,7 @@ struct sk_buff_head {
 ```
 The detailed definition of sk_buff is influenced by the kernel's configuration settings at compile time. The fields may vary depending on the features enabled (e.g., enabling QoS functionality). Below are descriptions of common fields.
 
-```
+```c
 struct sk_buff {
     /* These two members must be first. */
     struct sk_buff          *next;
@@ -291,7 +291,7 @@ Netlink Message
 
 ```
 
-```
+```c
 struct nlmsghdr {
  __u32  nlmsg_len; /* Length of message including header */
  __u16  nlmsg_type; /* Message content */
@@ -664,7 +664,7 @@ After performing sanity checks on the packet, it calls the Netfilter hook.
 
 Other processing is completed by ```ip_rcv_finish```.
 
-```
+```c
 /*
  * IP receive entry point
  */
