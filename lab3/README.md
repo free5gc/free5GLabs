@@ -109,7 +109,7 @@ iptables -I FORWARD 1 -j ACCEPT
 
 In this exercise, we will use docker bridge network to set up these three interfaces.
 
-In bottom of exercise/deploy_exercise.yaml, you can find network setting.
+In bottom of `exercise/deploy_exercise.yaml`, you can find network setting.
 
 ```yaml
 networks:
@@ -196,7 +196,7 @@ gnbSearchList:
   - gnb.free5gc.org # remove this line
 ```
 
-After configuring, clone [free5gc-compose](https://github.com/free5gc/free5gc-compose). Then move `free5GLab/lab3/exercise/deploy_exercise.yaml` to `free5gc-compose/` and copy the contents of the files from the `free5GLab/lab3/exercise/config` directory to `free5gc-compose/config`.
+After configuring, clone [free5gc-compose](https://github.com/free5gc/free5gc-compose). Then move `free5GLab/lab3/exercise/deploy_exercise.yaml` to `free5gc-compose/` directory. Copy the contents of the files from the `free5GLab/lab3/exercise/config` directory to `free5gc-compose/config`, and move the `free5GLab/lab3/n6gw` directory to `free5gc-compose/` so that the n6gw can build locally.
 
 You can use these commands to start or stop docker compose.
 
