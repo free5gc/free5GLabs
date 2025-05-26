@@ -705,7 +705,7 @@ There are only two functions:
 
 ```ip_forward_finish```: At this point, all checks are completed, and the packet is ready to be sent to another system.
 
-## Qeustion
+## Questions
 
 1. What is sk_buff? Please describe in detail the information it stores, its purpose, and the layers that use it.
 2. What is Netlink in the context of Linux networking? Describe its purpose, the typical flow of a Netlink communication, the Netlink message format, and how it compares to ioctl.
