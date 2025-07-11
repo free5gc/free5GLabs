@@ -1,7 +1,7 @@
 module lab4-excercise
 
 go 1.22.5
-toolchain go1.23.7
+toolchain go1.24.1
 
 require (
 	github.com/gin-contrib/cors v1.7.2
