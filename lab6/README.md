@@ -74,9 +74,9 @@ fix: resolve PDU release panic
 
 ## Exercise
 
-- Fork https://github.com/andy89923/nf-example & Trace code 
-    - It's a sample of free5GC NFs 
-    - Same structure but no **consumer** 
+- Fork [nf-example](https://github.com/Alonza0314/nf-example) & Trace code 
+    - It's a sample of free5GC NFs
+    - Same structure but no **consumer**
     - Not a real NF, for sure! 😆
 -  Follow the NF structure, create another API service
     - Must include 1 GET and 1 POST method at least
