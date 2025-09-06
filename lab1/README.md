@@ -12,7 +12,7 @@ In Lab 1, you will learn how to build concurrent program with Go.
 
 ## Race Condition & Critical Section
 
-Race Condition is a situation where two or more goroutines access a shared resource concurrently, and at least one of the goroutines modifies the resource. This can lead to unexpected behavior, such as data corruption or deadlock.
+Race Condition is a situation where two or more goroutines access a shared resource concurrently, and at least one of the goroutines modifies the resource. This can lead to unexpected behavior, such as incorrect results or data corruption. As shown in the example below, You may not get 1000 as expected, but some smaller number depending on timing.
 
 ```go
 package main
@@ -194,7 +194,7 @@ func main() {
 In fact, channels can be categorized into various types based on different characteristics. According to buffer capacity, channels can be divided into two types: **unbuffered channels** and **buffered channels**. 
 When we used make to create a channel above, we did not assign it a capacity value. By default, the buffer capacity would be 0, making the created channel an **unbuffered channel**. Unbuffered channels perform both sending and receiving operations with blocking operation, i.e., if a function attempts to read from the channel (**`v := <-ch`**), it will be blocked until the channel receives data. Similarly, any send operation (**`ch <- i`**) will also be blocked until the data in the channel is read out.
 
-Therefore, we can understand that unbuffered channels ensure that both read and write operations must be completed before the main program finished, achieving synchronization through this characteristic. As a result, this type of channel **does not require additional synchronization mechanisms**.
+Therefore, we can understand that unbuffered channels ensure that both read and write operations must synchronize before the program can proceed. As a result, this type of channel **does not require additional synchronization mechanisms**.
 ```go
 func main() {
     c := make(chan bool)
@@ -205,10 +205,10 @@ func main() {
     <-c
 }
 ```
-In this example, the main function ultimately uses **`<-c`**. Due to the "blocking" characteristic of unbuffered channels, the main function must wait for the channel to read out a value before it terminats.
+In this example above, the main function ultimately uses **`<-c`**. Due to the "blocking" characteristic of unbuffered channels, the main function must wait until the goroutine sends a value before it terminates.
 
 ###  :dart: Buffered channel 
-Buffered channels differ from unbuffered channels in that, as long as the buffer has sufficient capacity, the channel can continue receiving values without requiring them to be read immediately. This means that operations will not be blocked, and the main program does't need to wait for the channel to read out values before it terminates:
+Buffered channels differ from unbuffered channels in that, as long as the buffer has sufficient capacity, the channel can continue receiving values without requiring them to be read immediately. This means that operations may not block right away,allowing producers and consumers to run more independently:
 ```go
 func main() {
     c := make(chan bool, 1)  //Declare the capacity value (=1) of the buffer
@@ -219,7 +219,9 @@ func main() {
     <-c
 } 
 ```
-When a buffered channel receives a value with **`c <- true`**, the main program will not wait for the channel to read the value and will terminate prematurely. As a result, "free5GC so Good" will not be printed. This is the biggest difference between buffered and unbuffered channels.
+As shown in the example above, the goroutine will **still print** "free5GC so Good", and the main function will wait on <-c before it exits. Thus the output is guaranteed.
+
+⚠️ However, if we remove the <-c (or any other waiting mechanism), the main function could terminate before the goroutine executes, and nothing would be printed. This is a common pitfall when using buffered channels.
 
 ### :dart: Unidirectional Channel
 Channels is directional, categorized into **Bidirectional and Unidirectional**. **Unidirectional channels** only allow send or receive operations, and can be divided into **send-only channels** and **receive-only channels** furtherly. The characteristic of unidirectional data transmission provides higher security and readability in programs.
