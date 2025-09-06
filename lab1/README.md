@@ -12,7 +12,7 @@ In Lab 1, you will learn how to build concurrent program with Go.
 
 ## Race Condition & Critical Section
 
-Race Condition is a situation where two or more goroutines access a shared resource concurrently, and at least one of the goroutines modifies the resource. This can lead to unexpected behavior, such as data corruption or deadlock.
+Race Condition is a situation where two or more goroutines access a shared resource concurrently, and at least one of the goroutines modifies the resource. This can lead to unexpected behavior, such as incorrect results or data corruption. As shown in the example below, You may not get 1000 as expected, but some smaller number depending on timing.
 
 ```go
 package main
