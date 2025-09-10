@@ -1,0 +1,36 @@
+info:
+  version: 1.0.2
+  description: NSSF initial local configuration
+
+configuration:
+  nssfName: NSSF # the name of this NSSF
+  sbi: # Service-based interface information
+    scheme: http # the protocol for sbi (http or https)
+    registerIPv4: nssf.free5gc.org # IP used to register to NRF
+    bindingIPv4: nssf.free5gc.org  # IP used to bind the service
+    port: 8000 # Port used to bind the service
+    tls: # the local path of TLS key
+      pem: cert/nssf.pem # NSSF TLS Certificate
+      key: cert/nssf.key # NSSF TLS Private key
+  serviceNameList: # the SBI services provided by this SMF, refer to TS 29.531
+    - nnssf-nsselection # Nnssf_NSSelection service
+    - nnssf-nssaiavailability # Nnssf_NSSAIAvailability service
+  nrfUri: http://nrf.free5gc.org:8000 # a valid URI of NRF
+  nrfCertPem: cert/nrf.pem
+  supportedPlmnList: # the PLMNs (Public land mobile network) list supported by this NSSF
+    - mcc: 208 # Mobile Country Code (3 digits string, digit: 0~9)
+      mnc: 93 # Mobile Network Code (2 or 3 digits string, digit: 0~9)
+  supportedNssaiInPlmnList: # Supported S-NSSAI List for each PLMN
+    - plmnId: # Public Land Mobile Network ID, <PLMN ID> = <MCC><MNC>
+        mcc: 208 # Mobile Country Code (3 digits string, digit: 0~9)
+        mnc: 93 # Mobile Network Code (2 or 3 digits string, digit: 0~9)
+      supportedSnssaiList: # Supported S-NSSAIs of the PLMN
+        - sst: 1 # Slice/Service Type (uinteger, range: 0~255)
+          sd: 010203 # Slice Differentiator (3 bytes hex string, range: 000000~FFFFFF)
+        - sst: 1 # Slice/Service Type (uinteger, range: 0~255)
+          sd: 112233 # Slice Differentiator (3 bytes hex string, range: 000000~FFFFFF)
+
+logger: # log output setting
+  enable: true # true or false
+  level: info # how detailed to output, value: trace, debug, info, warn, error, fatal, panic
+  reportCaller: false # enable the caller report or not, value: true or false
