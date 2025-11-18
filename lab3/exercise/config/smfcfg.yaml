@@ -39,17 +39,17 @@ configuration:
   locality: area1 # Name of the location where a set of AMF, SMF, PCF and UPFs are located
   pfcp: # the IP address of N4 interface on this SMF (PFCP)
     # addr config is deprecated in smf config v1.0.3, please use the following config
-    nodeID: TODO # the Node ID of this SMF
-    listenAddr: TODO # the IP/FQDN of N4 interface on this SMF (PFCP)
-    externalAddr: TODO # the IP/FQDN of N4 interface on this SMF (PFCP)
+    nodeID: smf.free5gc.org # the Node ID of this SMF
+    listenAddr: smf.free5gc.org # the IP/FQDN of N4 interface on this SMF (PFCP)
+    externalAddr: smf.free5gc.org # the IP/FQDN of N4 interface on this SMF (PFCP)
   userplaneInformation: # list of userplane information
     upNodes: # information of userplane node (AN or UPF)
       gNB1: # the name of the node
         type: AN # the type of the node (AN or UPF)
       UPF: # the name of the node
         type: UPF # the type of the node (AN or UPF)
-        nodeID: TODO # the Node ID of this UPF
-        addr: TODO # the IP/FQDN of N4 interface on this UPF (PFCP)
+        nodeID: upf.free5gc.org # the Node ID of this UPF
+        addr: upf.free5gc.org # the IP/FQDN of N4 interface on this UPF (PFCP)
         sNssaiUpfInfos: # S-NSSAI information list for this UPF
           - sNssai: # S-NSSAI (Single Network Slice Selection Assistance Information)
               sst: 1 # Slice/Service Type (uinteger, range: 0~255)
@@ -72,7 +72,7 @@ configuration:
         interfaces: # Interface list for this UPF
           - interfaceType: N3 # the type of the interface (N3 or N9)
             endpoints: # the IP address of this N3/N9 interface on this UPF
-              - TODO
+              - upf.free5gc.org
             networkInstances: # Data Network Name (DNN)
               - internet
     links: # the topology graph of userplane, A and B represent the two nodes of each link
