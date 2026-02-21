@@ -52,7 +52,7 @@ free5GLabs is a comprehensive educational repository containing hands-on labs fo
   ```bash
   cd lab3/exercise
   docker pull mongo:latest  # ~9 seconds
-  docker pull free5gc/nrf:v3.4.2  # ~1-2 seconds
+  docker pull free5gc/nrf:v4.2.0  # ~1-2 seconds
   ```
 - **TIMING**: Individual pulls 1-15 seconds, full deployment setup 2-5 minutes
 - **NEVER CANCEL**: Set timeout to 15+ minutes for complete lab3 deployment
@@ -69,7 +69,7 @@ free5GLabs is a comprehensive educational repository containing hands-on labs fo
 
 ### Lab 3 - Docker Deployment Validation
 **CRITICAL**: After Docker setup changes, ALWAYS validate full deployment:
-- Test image pulls: `docker pull free5gc/nrf:v3.4.2`
+- Test image pulls: `docker pull free5gc/nrf:v4.2.0`
 - Verify network bridges: `brctl show` (should show docker0 and potentially br-free5gc)
 - **Manual validation**: Deploy core services and verify connectivity between NFs
 - **Check logs**: Each NF should start successfully and register with NRF
