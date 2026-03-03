@@ -3,6 +3,12 @@
 free5GLabs includes series of hands-on lab of 5G Core (free5GC), this document is being maintained by students of WireLab.
 This document helps the lab newbies (or anyone who interested in 5G Core) to understand how to develop/trace/use free5GC.
 
+## Read Book
+
+- [5G Core Easy Learning: free5GC and free-ran-ue](https://free-ran-ue.github.io/doc-5g-core-book/en/)
+
+## Labs
+
 - Lab 0: [Network Programming with Go](./lab0/README.md)
 - Lab 1: [Concurrent Programming in Go](./lab1/README.md)
 - Lab 2: [Networking Basics in Linux kernel](./lab2/README.md)
