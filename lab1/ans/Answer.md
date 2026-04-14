@@ -30,26 +30,27 @@ func increment() {
 ```
 Yes, In the original code, **`a = a + 1`** is not an atomic operation. This operation is divided into multiple steps: reading the value of **`a`**, adding 1, and then writing it back to **`a`**. The **`go func()`** inside the loop creates multiple goroutines that execute these steps simultaneously, interfering with each other and leading to unpredictable results. Now we rewrote this code with an atomic operation to improve concurrency issues:
 ```go
-//goog code
+//good code
 var a int64
+var wg sync.WaitGroup
 
 func main() {
-    var wg sync.WaitGroup
-    wg.Add(1)
+    total := 100000000
+    wg.Add(total)
 
-    go func() {
-        increment()
-        wg.Done()
-    }()
+    go increment(total)
 
     wg.Wait()
 
     fmt.Println("Final value of a:", a)
 }
 
-func increment() {
-    for i := 0; i < 100000000; i++ {
-        go atomic.AddInt64(&a, 1)
+func increment(total int) {
+    for i := 0; i < total; i++ {
+        func() {
+            defer wg.Done()
+            atomic.AddInt64(&a, 1)
+        }()
     }
 }
 ```
@@ -88,7 +89,7 @@ The previous sample code avoids memory leaks because **`time.After`** executes f
     * Alternatively, use **`time.NewTimer`** and **`timer.Stop()`** instead of **`time.After()`** to more flexibly manage timer stops and memory release, thereby avoiding potential memory leaks associated with **`time.After()`**:
     
 ```go
-    func main() {
+func main() {
     timeout := make(chan bool, 1)
     go func() {
         time.Sleep(1 * time.Second)
@@ -108,8 +109,7 @@ The previous sample code avoids memory leaks because **`time.After`** executes f
 
     if !timer.Stop() {
         <-timer.C 
-        }
     }
-
+}
 ```
 * reference: [Memory Leak in Go](https://arangodb.com/2020/09/a-story-of-a-memory-leak-in-go-how-to-properly-use-time-after/)
