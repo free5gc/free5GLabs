@@ -74,7 +74,7 @@ fix: resolve PDU release panic
 
 ## Exercise
 
-- Fork [nf-example](https://github.com/Alonza0314/nf-example) & Trace code 
+- Fork [nf-example](https://github.com/d11nn/nf-example) & Trace code 
     - It's a sample of free5GC NFs
     - Same structure but no **consumer**
     - Not a real NF, for sure! 😆
