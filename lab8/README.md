@@ -99,7 +99,7 @@ Real case: CVE-2022-43677 in free5GC was found exactly this way. Read
 before you continue -- it is the best reference for this part of the lab.
 
 Practical tips:
-- Every crash found by the fuzzer should become a **regression unit test** (the corpus file goes into `testdata/`)
+- Every crash found by the fuzzer should become a **regression test** (Go writes the minimized input under `testdata/fuzz/<FuzzTestName>/`, which future `go test` runs execute)
 - Run a short fuzz session on every PR, and a long one nightly -- fuzzing is a marathon, not a sprint
 - Fuzz the *decoding* path first; that is where attacker-controlled bytes arrive
 
