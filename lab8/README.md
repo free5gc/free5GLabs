@@ -153,9 +153,9 @@ Researchers are a free, world-class security team -- but only if reporting to yo
 
 ## Exercise
 
-1. Pick one free5GC repository (a `pkg` library, an NF, or `free5gc-compose`) and generate an SBOM for it. How many transitive dependencies are there? How many of them do you recognize?
+1. Pick one free5GC repository (a `pkg` library, an NF, or `free5gc-compose`), clone it locally, and generate an SBOM. You do not need to fork it for this step. How many transitive dependencies are there? How many of them do you recognize?
 2. Scan that SBOM with an OSS vulnerability scanner. List the findings, and for each one answer: *is the vulnerable code path actually reachable from free5GC?*
-3. Enable a security linter (for example `gosec`) or CodeQL on your fork, and open a PR that fixes one real finding.
+3. Fork the repository, enable a security linter (for example `gosec`) or CodeQL on your fork, and open a PR that fixes one real finding.
 4. Write a Go fuzz target for one decoding function (NAS, NGAP, or PFCP). Run it for at least 10 minutes and report what you found -- including "nothing", which is also a valid result.
 5. Draft a `SECURITY.md` for your own repository. Who receives the report? How long until the reporter gets an answer?
 
