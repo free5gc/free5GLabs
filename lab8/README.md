@@ -75,7 +75,7 @@ Static analysis inspects source code without running it. It is fast, runs on eve
 Useful for a Go project like free5GC:
 - `go vet`, `staticcheck`, `golangci-lint` (you already run linting in Lab 7 -- just enable the security linters such as `gosec`)
 - [CodeQL](https://codeql.github.com/), which GitHub can run natively on every PR
-- Secret scanning, so that a leaked token never reaches the git history
+- Secret scanning with push protection, so supported secrets are blocked before they reach the Git history
 
 The cost of SAST is **false positives**. Triage them, suppress them explicitly with a reason, and keep the signal-to-noise ratio high -- a pipeline that always fails is a pipeline that everyone ignores.
 
