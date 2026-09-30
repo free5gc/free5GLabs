@@ -57,7 +57,7 @@ A CVE in a base image is *not* the same problem as a CVE in `golang.org/x/net`: 
 
 1. Generate the SBOM on every build (for example with `syft`, `cyclonedx-gomod`, or `docker sbom`).
 2. Attach the SBOM as a build artifact / release asset, so downstream users can consume it.
-3. Scan the SBOM against a vulnerability database (for example with `grype`, `osv-scanner`, `govulncheck`, or `trivy`).
+3. Scan the SBOM against a vulnerability database (for example with `grype`, `osv-scanner`, or `trivy`), and run `govulncheck` separately against Go source or binaries.
 4. Fail the pipeline (or open an issue automatically) when a `HIGH` / `CRITICAL` finding appears.
 5. Let Dependabot handle the routine version bumps, and let the SBOM scan be the safety net for what Dependabot cannot see (vendored code, base images, chart dependencies).
 
