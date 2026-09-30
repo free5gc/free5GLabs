@@ -17,7 +17,7 @@ This document helps the lab newbies (or anyone who interested in 5G Core) to und
 - Lab 5: [5G protocol stack observation (tcpdump)](./lab5/README.md)
 - Lab 6: [Git & GitHub](./lab6/README.md)
 - Lab 7: [CI/CD with GitHub Actions](./lab7/README.md)
-- Lab 8: OSS Vulnerabilities
+- Lab 8: [OSS Vulnerabilities](./lab8/README.md)
 - Lab X (External): [Self-check list](https://hackmd.io/@free5gc-dev/rk8ZHe4wh)
 
 ## Selected articles
