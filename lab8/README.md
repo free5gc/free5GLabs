@@ -136,7 +136,7 @@ The hardest (and the most fun) one: build a **red team agent** that aggregates c
 This turns security testing into a continuous, self-improving exercise instead of a one-off penetration test.
 
 > [!WARNING]
-> Only run offensive tooling against **your own lab environment**. Attacking a network you do not own is illegal.
+> Only run offensive tooling against systems you own or are explicitly authorized to test, and stay within the agreed scope. Unauthorized testing may be illegal.
 
 ## Part 4: Use the Power of the Community
 
